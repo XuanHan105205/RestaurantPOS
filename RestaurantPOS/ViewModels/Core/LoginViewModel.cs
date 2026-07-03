@@ -24,7 +24,7 @@ namespace RestaurantPOS.ViewModels.Core
 
         public LoginViewModel()
         {
-            // TODO: Hàn (Leader) will implement Login logic here.
+            // TODO: Hàn will implement Login logic here.
         }
     }
 }

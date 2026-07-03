@@ -7,25 +7,25 @@ namespace RestaurantPOS.Services
     {
         public List<Customer> GetAllCustomers()
         {
-            // TODO: Hàn (Leader) will implement this.
+            // TODO: Hàn will implement this.
             return new List<Customer>();
         }
 
         public Customer GetCustomerByPhone(string phone)
         {
-            // TODO: Hàn (Leader) will implement this.
+            // TODO: Hàn will implement this.
             return null;
         }
 
         public bool AddCustomer(Customer customer)
         {
-            // TODO: Hàn (Leader) will implement this.
+            // TODO: Hàn will implement this.
             return false;
         }
 
         public bool UpdateCustomer(Customer customer)
         {
-            // TODO: Hàn (Leader) will implement this.
+            // TODO: Hàn will implement this.
             return false;
         }
     }

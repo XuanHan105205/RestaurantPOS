@@ -13,6 +13,6 @@
     </Window.DataContext>
     
     <Grid>
-        <TextBlock Text="Màn hình đăng nhập (Hàn - Leader)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontWeight="Bold"/>
+        <TextBlock Text="Màn hình đăng nhập (Hàn)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontWeight="Bold"/>
     </Grid>
 </Window>

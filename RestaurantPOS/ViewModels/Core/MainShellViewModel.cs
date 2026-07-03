@@ -5,7 +5,7 @@ namespace RestaurantPOS.ViewModels.Core
 {
     public class MainShellViewModel : ViewModelBase
     {
-        public string CurrentEmployeeName { get; set; } = "Hàn (Leader)";
+        public string CurrentEmployeeName { get; set; } = "Hàn";
         public string CurrentEmployeeRole { get; set; } = "MANAGER";
 
         public NavigationService Navigation => NavigationService.Instance;
@@ -19,7 +19,7 @@ namespace RestaurantPOS.ViewModels.Core
 
         public MainShellViewModel()
         {
-            // TODO: Hàn (Leader) will initialize navigation commands and role-based visibility.
+            // TODO: Hàn will initialize navigation commands and role-based visibility.
         }
     }
 }

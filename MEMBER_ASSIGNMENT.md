@@ -6,7 +6,7 @@ Tài liệu này định nghĩa vai trò, nhiệm vụ, thứ tự ưu tiên là
 
 ## 👥 THÀNH VIÊN VÀ NHIỆM VỤ CHI TIẾT
 
-### 1. 🧑🏫 MEMBER 5 (LEADER) — Hàn (ARCHITECTURE & CUSTOMER MANAGEMENT)
+### 1. 🧑🏫 MEMBER 5 — Hàn (ARCHITECTURE & CUSTOMER MANAGEMENT)
 * **Bảng dữ liệu phụ trách**: `employees`, `customers`
 * **Giao diện WPF (UI)**:
   * `LoginWindow.xaml` (Giao diện đăng nhập hệ thống).
@@ -89,7 +89,7 @@ graph TD
     F -->|Thanh toán & Đóng Session| G[Hoàn thành hệ thống]
 ```
 
-### 🔹 GIAI ĐOẠN 1: Leader Hàn xây dựng nền móng (MỌI NGƯỜI ĐỢI HÀN)
+### 🔹 GIAI ĐOẠN 1: Hàn xây dựng nền móng (MỌI NGƯỜI ĐỢI HÀN)
 * **Nhiệm vụ ưu tiên cực cao**: Hàn cần code xong `DatabaseHelper.cs` (kết nối SQL Server thành công) và bộ khung MVVM Base (`ViewModelBase`, `RelayCommand`).
 * **Lý do**: Đây là thư viện chung. Hưng, Khải, Khang, Đắc bắt buộc phải đợi Hàn đẩy file này lên Git thì mới có kết nối để gọi câu lệnh SQL và viết các class ViewModel thừa kế.
 
@@ -116,7 +116,7 @@ graph TD
 ### 1. Quy tắc cấu trúc thư mục (Directory Structure)
 Mọi người chỉ viết code giao diện, ViewModel, Service và Repository của mình trong đúng thư mục được chia sẵn để tránh xung đột file khi merge git:
 * **Models/**: Chứa các Class Entity dùng chung cho cả nhóm. **Cấm tự ý sửa đổi** các file này nếu chưa có sự đồng ý của nhóm.
-* **Data/**: Chứa `DatabaseHelper.cs` (Kết nối CSDL chung). Hàn (Leader) quản lý.
+* **Data/**: Chứa `DatabaseHelper.cs` (Kết nối CSDL chung). Hàn quản lý.
 * **Repositories/**: Chứa các repository truy vấn dữ liệu SQL. Thành viên phụ trách bảng nào thì viết repository tương ứng ở đây.
 * **Services/**: Chứa logic nghiệp vụ. Các module giao tiếp với nhau **BẮT BUỘC** phải đi qua Service.
 * **Views/ và ViewModels/**: Chia thư mục con theo thành viên:

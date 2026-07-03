@@ -4,6 +4,6 @@ namespace RestaurantPOS.ViewModels.Core
 {
     public class CustomerManagementViewModel : ViewModelBase
     {
-        // TODO: Hàn (Leader) will write properties and commands for CRUD customers here.
+        // TODO: Hàn will write properties and commands for CRUD customers here.
     }
 }

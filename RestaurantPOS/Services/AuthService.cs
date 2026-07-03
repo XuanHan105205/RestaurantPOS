@@ -13,7 +13,7 @@ namespace RestaurantPOS.Services
 
         public bool Login(string username, string password)
         {
-            // TODO: Hàn (Leader) will implement Login verification here.
+            // TODO: Hàn will implement Login verification here.
             return false;
         }
 
