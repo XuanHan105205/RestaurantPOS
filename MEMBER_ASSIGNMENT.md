@@ -165,7 +165,7 @@ Tất cả thành viên bắt buộc phải tuân theo quy tắc đặt tên sau
 * Ở thư mục gốc dự án có thư mục [Database/](file:///d:/SU26_semeter5/POS/RestaurantPOS/Database) chứa file script [database_schema.sql](file:///d:/SU26_semeter5/POS/RestaurantPOS/Database/database_schema.sql).
 * Mở **SQL Server Management Studio (SSMS)** trên máy bạn, mở file SQL này lên và nhấn **Execute** để tạo cơ sở dữ liệu `RestaurantPOS` cùng 14 bảng mẫu và dữ liệu kiểm thử.
 
-### 2. Cấu hình chuỗi kết nối trong `App.config`
-* Mở file [App.config](file:///d:/SU26_semeter5/POS/RestaurantPOS/RestaurantPOS/App.config) trong project.
-* Thay đổi thuộc tính `Server=localhost` thành **tên SQL Server Instance trên máy của bạn** (Ví dụ: `Server=.\SQLEXPRESS` hoặc `Server=DESKTOP-XXXX\SQLEXPRESS`).
+### 2. Cấu hình chuỗi kết nối trong `appsettings.json`
+* Mở file [appsettings.json](file:///d:/SU26_semeter5/POS/RestaurantPOS/RestaurantPOS/appsettings.json) trong project.
+* Thay đổi giá trị Server tại khóa `"RestaurantPOSConnection"` thành **tên SQL Server Instance trên máy của bạn** (Ví dụ: `"Server=.\\SQLEXPRESS;Database=RestaurantPOS;Trusted_Connection=True;TrustServerCertificate=True;"`).
 * **Lưu ý**: Chỉ sửa file này để chạy cục bộ trên máy mình, **HẠN CHẾ** commit đè chuỗi kết nối cá nhân lên nhánh `main` chung.
