@@ -1,0 +1,47 @@
+<Window x:Class="RestaurantPOS.Views.Core.MainShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:RestaurantPOS.ViewModels.Core"
+        xmlns:waiterVm="clr-namespace:RestaurantPOS.ViewModels.Waiter"
+        xmlns:waiterView="clr-namespace:RestaurantPOS.Views.Waiter"
+        xmlns:kitchenVm="clr-namespace:RestaurantPOS.ViewModels.Kitchen"
+        xmlns:kitchenView="clr-namespace:RestaurantPOS.Views.Kitchen"
+        xmlns:inventoryVm="clr-namespace:RestaurantPOS.ViewModels.Inventory"
+        xmlns:inventoryView="clr-namespace:RestaurantPOS.Views.Inventory"
+        xmlns:billingVm="clr-namespace:RestaurantPOS.ViewModels.Billing"
+        xmlns:billingView="clr-namespace:RestaurantPOS.Views.Billing"
+        xmlns:coreView="clr-namespace:RestaurantPOS.Views.Core"
+        mc:Ignorable="d"
+        Title="MainShellWindow" Height="600" Width="1000"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vm:MainShellViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <!-- Mapping ViewModels to Views -->
+        <DataTemplate DataType="{x:Type waiterVm:TableViewModel}">
+            <waiterView:TableView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type kitchenVm:KitchenViewModel}">
+            <kitchenView:KitchenView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type inventoryVm:InventoryViewModel}">
+            <inventoryView:InventoryView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type billingVm:BillingViewModel}">
+            <billingView:BillingView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CustomerManagementViewModel}">
+            <coreView:CustomerManagementView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Content Control to render the active viewmodel -->
+        <ContentControl Content="{Binding Navigation.CurrentViewModel}" />
+    </Grid>
+</Window>
