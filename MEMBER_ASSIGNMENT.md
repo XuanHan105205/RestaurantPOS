@@ -113,12 +113,39 @@ graph TD
 
 ## 🛠 QUY TẮC PHÁT TRIỂN & TRÁNH XUNG ĐỘT (GIT CONFLICTS)
 
-1. **Thư mục code**: Mọi người chỉ viết code giao diện và ViewModel của mình trong đúng thư mục được chia sẵn:
-   * Waiter ➔ `Views/Waiter/` và `ViewModels/Waiter/`
-   * Kitchen ➔ `Views/Kitchen/` và `ViewModels/Kitchen/`
-   * Inventory ➔ `Views/Inventory/` và `ViewModels/Inventory/`
-   * Payment/Report ➔ `Views/Billing/` và `ViewModels/Billing/`
-   * Core/Auth/Customers ➔ `Views/Core/` và `ViewModels/Core/`
-2. **Database Access**: Bắt buộc dùng `DatabaseHelper` để kết nối, không tự viết các hàm mở kết nối hay chuỗi kết nối riêng trong class của mình.
-3. **ViewModels**: Tuyệt đối không viết câu lệnh SQL hay import SqlClient trong file ViewModel. Mọi truy vấn phải gọi qua Service ➔ Repository ➔ DatabaseHelper.
-4. **Git**: Trước khi code bắt buộc phải `git pull` để nhận các cập nhật mới nhất từ Leader Hàn và các thành viên khác.
+### 1. Quy tắc cấu trúc thư mục (Directory Structure)
+Mọi người chỉ viết code giao diện, ViewModel, Service và Repository của mình trong đúng thư mục được chia sẵn để tránh xung đột file khi merge git:
+* **Models/**: Chứa các Class Entity dùng chung cho cả nhóm. **Cấm tự ý sửa đổi** các file này nếu chưa có sự đồng ý của nhóm.
+* **Data/**: Chứa `DatabaseHelper.cs` (Kết nối CSDL chung). Hàn (Leader) quản lý.
+* **Repositories/**: Chứa các repository truy vấn dữ liệu SQL. Thành viên phụ trách bảng nào thì viết repository tương ứng ở đây.
+* **Services/**: Chứa logic nghiệp vụ. Các module giao tiếp với nhau **BẮT BUỘC** phải đi qua Service.
+* **Views/ và ViewModels/**: Chia thư mục con theo thành viên:
+  * Waiter ➔ `Views/Waiter/` và `ViewModels/Waiter/` (Hưng)
+  * Kitchen ➔ `Views/Kitchen/` và `ViewModels/Kitchen/` (Khải)
+  * Inventory ➔ `Views/Inventory/` và `ViewModels/Inventory/` (Khang)
+  * Payment/Report ➔ `Views/Billing/` và `ViewModels/Billing/` (Đắc)
+  * Core/Auth/Customers ➔ `Views/Core/` và `ViewModels/Core/` (Hàn)
+
+### 2. Quy tắc đặt tên (Naming Conventions) - CỰC KỲ QUAN TRỌNG
+Tất cả thành viên bắt buộc phải tuân theo quy tắc đặt tên sau đây để code sạch và dễ đọc:
+* **Class & Interface**: Sử dụng `PascalCase`. Interface bắt đầu bằng chữ `I` (ví dụ: `IOrderService`, `OrderService`, `IEmployeeRepository`, `EmployeeRepository`).
+* **Views (Giao diện XAML)**: Sử dụng `PascalCase` và có hậu tố rõ ràng:
+  * Nếu là màn hình con (UserControl): Có hậu tố `View` (ví dụ: `TableView.xaml`, `KitchenView.xaml`).
+  * Nếu là cửa sổ độc lập (Window): Có hậu tố `Window` (ví dụ: `LoginWindow.xaml`, `MainShellWindow.xaml`).
+  * Nếu là hộp thoại hiển thị lên (Popup/Dialog): Có hậu tố `Popup` hoặc `Dialog` (ví dụ: `OrderDetailPopup.xaml`).
+* **ViewModels**: Sử dụng `PascalCase`, phải khớp với tên View và bắt buộc có hậu tố `ViewModel` (ví dụ: `TableViewModel.cs`, `LoginViewModel.cs`, `BillingViewModel.cs`).
+* **Services**: Sử dụng `PascalCase` và có hậu tố `Service` (ví dụ: `TableService.cs`, `IngredientService.cs`).
+* **Repositories**: Sử dụng `PascalCase` và có hậu tố `Repository` (ví dụ: `OrderRepository.cs`, `IngredientRepository.cs`).
+* **Biến private/protected (trong class)**: Sử dụng `camelCase` có dấu gạch dưới phía trước (ví dụ: `_connectionString`, `_currentUser`, `_employeeRepository`).
+* **Biến public / Properties / Methods**: Sử dụng `PascalCase` (ví dụ: `CurrentEmployee`, `GetEmployeeById()`, `IsActive`).
+
+### 3. Quy tắc kiến trúc MVVM
+* ❌ **KHÔNG** viết code truy vấn SQL trực tiếp trong các file ViewModel hoặc View code-behind (ví dụ: `TableView.xaml.cs`).
+* ❌ **KHÔNG** tương tác trực tiếp với các control UI (như gán text, ẩn hiện control trực tiếp bằng code-behind) từ ViewModel. Thay vào đó sử dụng `Data Binding` và `ICommand`.
+* ✔️ Mọi truy vấn cơ sở dữ liệu phải tuân theo đúng luồng:
+  `View` ➔ `ViewModel` ➔ `Service` ➔ `Repository` ➔ `DatabaseHelper (SQL Server)`
+
+### 4. Quy tắc làm việc với Git
+* ✔️ Trước khi viết code hoặc đầu buổi làm việc, bắt buộc phải `git pull` để nhận các cập nhật mới nhất từ nhóm.
+* ✔️ Chỉ commit những file code thuộc phạm vi phụ trách của mình. Tránh commit đè lên file của người khác.
+* ✔️ Không commit các file tạm thời, file build (`bin/`, `obj/`, `.vs/`). (Đã được chặn tự động bởi file `.gitignore`).
