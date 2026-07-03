@@ -147,5 +147,25 @@ Tất cả thành viên bắt buộc phải tuân theo quy tắc đặt tên sau
 
 ### 4. Quy tắc làm việc với Git
 * ✔️ Trước khi viết code hoặc đầu buổi làm việc, bắt buộc phải `git pull` để nhận các cập nhật mới nhất từ nhóm.
+* ✔️ **Quy tắc đặt tên nhánh (Branch Naming)**: Khi làm tính năng mới, tạo nhánh riêng từ `main` theo mẫu: `feature/ten_thanh_vien-ten_tinh_nang` (ví dụ: `feature/hung-goi_mon`, `feature/khai-man_hinh_bep`). Tuyệt đối không code trực tiếp trên nhánh `main`.
+* ✔️ **Quy tắc gửi Pull Request (PR)**: Sau khi hoàn thành code trên nhánh riêng và đẩy lên GitHub, tạo Pull Request để gửi yêu cầu gộp code vào `main`. Trước khi gửi PR, phải đảm bảo:
+  1. Ứng dụng biên dịch thành công (build success), không bị lỗi cú pháp.
+  2. Đã đặt tên theo đúng Quy tắc đặt tên (Naming Conventions).
+  3. Ghi chú rõ các file SQL hoặc cập nhật cấu trúc bảng mới (nếu có).
 * ✔️ Chỉ commit những file code thuộc phạm vi phụ trách của mình. Tránh commit đè lên file của người khác.
 * ✔️ Không commit các file tạm thời, file build (`bin/`, `obj/`, `.vs/`). (Đã được chặn tự động bởi file `.gitignore`).
+
+---
+
+## ⚠️ LƯU Ý QUAN TRỌNG KHI SETUP MÁY CỤC BỘ (TRÁNH LỖI KẾT NỐI CSDL)
+
+Để ứng dụng chạy được trên máy của từng thành viên sau khi pull code về, các thành viên **bắt buộc** phải thực hiện 2 bước sau:
+
+### 1. Khởi tạo Cơ Sở Dữ Liệu SQL Server cục bộ
+* Ở thư mục gốc dự án có thư mục [Database/](file:///d:/SU26_semeter5/POS/RestaurantPOS/Database) chứa file script [database_schema.sql](file:///d:/SU26_semeter5/POS/RestaurantPOS/Database/database_schema.sql).
+* Mở **SQL Server Management Studio (SSMS)** trên máy bạn, mở file SQL này lên và nhấn **Execute** để tạo cơ sở dữ liệu `RestaurantPOS` cùng 14 bảng mẫu và dữ liệu kiểm thử.
+
+### 2. Cấu hình chuỗi kết nối trong `App.config`
+* Mở file [App.config](file:///d:/SU26_semeter5/POS/RestaurantPOS/RestaurantPOS/App.config) trong project.
+* Thay đổi thuộc tính `Server=localhost` thành **tên SQL Server Instance trên máy của bạn** (Ví dụ: `Server=.\SQLEXPRESS` hoặc `Server=DESKTOP-XXXX\SQLEXPRESS`).
+* **Lưu ý**: Chỉ sửa file này để chạy cục bộ trên máy mình, **HẠN CHẾ** commit đè chuỗi kết nối cá nhân lên nhánh `main` chung.
