@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -8,9 +8,18 @@ namespace RestaurantPOS.Data
 {
     public static class DatabaseHelper
     {
-        private static readonly string ConnectionString = 
-            ConfigurationManager.ConnectionStrings["RestaurantPOSConnection"]?.ConnectionString 
-            ?? "Server=localhost;Database=RestaurantPOS;Trusted_Connection=True;TrustServerCertificate=True;";
+        private static readonly string ConnectionString;
+
+        static DatabaseHelper()
+        {
+            var config = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            ConnectionString = config.GetConnectionString("RestaurantPOSConnection") 
+                ?? "Server=localhost;Database=RestaurantPOS;Trusted_Connection=True;TrustServerCertificate=True;";
+        }
 
         public static SqlConnection GetConnection()
         {
