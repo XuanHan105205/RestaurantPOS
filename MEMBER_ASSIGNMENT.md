@@ -16,7 +16,7 @@ Tài liệu này định nghĩa vai trò, nhiệm vụ, thứ tự ưu tiên là
   * `AuthService.cs` (Xác thực đăng nhập và bảo mật).
   * `CustomerService.cs` (Nghiệp vụ tích điểm, thăng hạng thành viên).
   * `CustomerRepository.cs` (Đọc ghi SQL bảng `customers`).
-  * Lớp Base: `DatabaseHelper.cs` (Cung cấp kết nối SQL Server chung) và MVVM core (`ViewModelBase`, `RelayCommand`, `NavigationService`).
+  * Lớp Base: `RestaurantPOSDbContext.cs` (Cung cấp kết nối SQL Server qua EF Core) và MVVM core (`ViewModelBase`, `RelayCommand`, `NavigationService`).
 * **🧠 Logic chính**: Xác thực nhân viên -> Mở giao diện chính -> Phân quyền truy cập các Tab chức năng theo vai trò (Role). Quản lý khách hàng thân thiết.
 * **⚠️ RULE**: Chỉ làm Core, Login, điều hướng và Quản lý khách hàng. KHÔNG can thiệp vào nghiệp vụ Bán hàng, Bếp hay Kho.
 
@@ -90,8 +90,8 @@ graph TD
 ```
 
 ### 🔹 GIAI ĐOẠN 1: Hàn xây dựng nền móng (MỌI NGƯỜI ĐỢI HÀN)
-* **Nhiệm vụ ưu tiên cực cao**: Hàn cần code xong `DatabaseHelper.cs` (kết nối SQL Server thành công) và bộ khung MVVM Base (`ViewModelBase`, `RelayCommand`).
-* **Lý do**: Đây là thư viện chung. Hưng, Khải, Khang, Đắc bắt buộc phải đợi Hàn đẩy file này lên Git thì mới có kết nối để gọi câu lệnh SQL và viết các class ViewModel thừa kế.
+* **Nhiệm vụ ưu tiên cực cao**: Hàn cần cấu hình xong `RestaurantPOSDbContext.cs` (kết nối SQL Server qua EF Core thành công) và bộ khung MVVM Base (`ViewModelBase`, `RelayCommand`).
+* **Lý do**: Đây là thư viện chung. Hưng, Khải, Khang, Đắc bắt buộc phải đợi Hàn đẩy file này lên Git thì mới có kết nối thông qua EF Core DbContext để thao tác CSDL và viết các class ViewModel thừa kế.
 
 ### 🔹 GIAI ĐOẠN 2: Waiter Gọi món (Hưng - M1) & Định lượng kho (Khang - M3)
 * **Nhiệm vụ ưu tiên**: 
@@ -116,8 +116,8 @@ graph TD
 ### 1. Quy tắc cấu trúc thư mục (Directory Structure)
 Mọi người chỉ viết code giao diện, ViewModel, Service và Repository của mình trong đúng thư mục được chia sẵn để tránh xung đột file khi merge git:
 * **Models/**: Chứa các Class Entity dùng chung cho cả nhóm. **Cấm tự ý sửa đổi** các file này nếu chưa có sự đồng ý của nhóm.
-* **Data/**: Chứa `DatabaseHelper.cs` (Kết nối CSDL chung). Hàn quản lý.
-* **Repositories/**: Chứa các repository truy vấn dữ liệu SQL. Thành viên phụ trách bảng nào thì viết repository tương ứng ở đây.
+* **Data/**: Chứa `RestaurantPOSDbContext.cs` (Kết nối CSDL qua EF Core). Hàn quản lý.
+* **Repositories/**: Chứa các repository truy vấn dữ liệu sử dụng EF Core DbContext. Thành viên phụ trách bảng nào thì viết repository tương ứng ở đây.
 * **Services/**: Chứa logic nghiệp vụ. Các module giao tiếp với nhau **BẮT BUỘC** phải đi qua Service.
 * **Views/ và ViewModels/**: Chia thư mục con theo thành viên:
   * Waiter ➔ `Views/Waiter/` và `ViewModels/Waiter/` (Hưng)
@@ -143,7 +143,7 @@ Tất cả thành viên bắt buộc phải tuân theo quy tắc đặt tên sau
 * ❌ **KHÔNG** viết code truy vấn SQL trực tiếp trong các file ViewModel hoặc View code-behind (ví dụ: `TableView.xaml.cs`).
 * ❌ **KHÔNG** tương tác trực tiếp với các control UI (như gán text, ẩn hiện control trực tiếp bằng code-behind) từ ViewModel. Thay vào đó sử dụng `Data Binding` và `ICommand`.
 * ✔️ Mọi truy vấn cơ sở dữ liệu phải tuân theo đúng luồng:
-  `View` ➔ `ViewModel` ➔ `Service` ➔ `Repository` ➔ `DatabaseHelper (SQL Server)`
+  `View` ➔ `ViewModel` ➔ `Service` ➔ `Repository` ➔ `RestaurantPOSDbContext (EF Core)`
 
 ### 4. Quy tắc làm việc với Git
 * ✔️ Trước khi viết code hoặc đầu buổi làm việc, bắt buộc phải `git pull` để nhận các cập nhật mới nhất từ nhóm.

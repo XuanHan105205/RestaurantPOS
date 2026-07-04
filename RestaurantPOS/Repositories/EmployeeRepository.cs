@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using RestaurantPOS.Models;
 using RestaurantPOS.Data;
-using Microsoft.Data.SqlClient;
 
 namespace RestaurantPOS.Repositories
 {
@@ -9,47 +9,58 @@ namespace RestaurantPOS.Repositories
     {
         public override List<Employee> GetAll()
         {
-            // TODO: Hàn will write SQL select query here.
-            return new List<Employee>();
+            using (var context = new RestaurantPOSDbContext())
+            {
+                return context.Employees.ToList();
+            }
         }
 
         public override Employee GetById(int id)
         {
-            // TODO: Hàn will write SQL select query here.
-            return null;
+            using (var context = new RestaurantPOSDbContext())
+            {
+                return context.Employees.Find(id);
+            }
         }
 
         public Employee GetByUsername(string username)
         {
-            string sql = "SELECT employee_id, full_name, username, password_hash, role, phone, is_active FROM employees WHERE username = @Username";
-            var param = new SqlParameter("@Username", username);
-            return DatabaseHelper.ExecuteSingle(sql, reader => new Employee
+            using (var context = new RestaurantPOSDbContext())
             {
-                EmployeeId = DatabaseHelper.GetValue<int>(reader["employee_id"]),
-                FullName = DatabaseHelper.GetValue<string>(reader["full_name"]),
-                Username = DatabaseHelper.GetValue<string>(reader["username"]),
-                PasswordHash = DatabaseHelper.GetValue<string>(reader["password_hash"]),
-                Role = DatabaseHelper.GetValue<string>(reader["role"]),
-                Phone = DatabaseHelper.GetValue<string>(reader["phone"]),
-                IsActive = DatabaseHelper.GetValue<bool>(reader["is_active"])
-            }, param);
+                return context.Employees.FirstOrDefault(e => e.Username == username);
+            }
         }
+
         public override bool Add(Employee entity)
         {
-            // TODO: Hàn will write SQL insert query here.
-            return false;
+            using (var context = new RestaurantPOSDbContext())
+            {
+                context.Employees.Add(entity);
+                return context.SaveChanges() > 0;
+            }
         }
 
         public override bool Update(Employee entity)
         {
-            // TODO: Hàn will write SQL update query here.
-            return false;
+            using (var context = new RestaurantPOSDbContext())
+            {
+                context.Employees.Update(entity);
+                return context.SaveChanges() > 0;
+            }
         }
 
         public override bool Delete(int id)
         {
-            // TODO: Hàn will write SQL delete query here.
-            return false;
+            using (var context = new RestaurantPOSDbContext())
+            {
+                var employee = context.Employees.Find(id);
+                if (employee != null)
+                {
+                    context.Employees.Remove(employee);
+                    return context.SaveChanges() > 0;
+                }
+                return false;
+            }
         }
     }
 }
