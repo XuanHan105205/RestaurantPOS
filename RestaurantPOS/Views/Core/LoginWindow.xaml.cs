@@ -8,5 +8,6 @@ namespace RestaurantPOS.Views.Core
         {
             InitializeComponent();
         }
+
     }
 }

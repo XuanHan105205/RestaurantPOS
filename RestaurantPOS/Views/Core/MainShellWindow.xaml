@@ -22,6 +22,8 @@
     </Window.DataContext>
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
         <!-- Mapping ViewModels to Views -->
         <DataTemplate DataType="{x:Type waiterVm:TableViewModel}">
             <waiterView:TableView />
@@ -38,10 +40,97 @@
         <DataTemplate DataType="{x:Type vm:CustomerManagementViewModel}">
             <coreView:CustomerManagementView />
         </DataTemplate>
+        
+        <!-- Style thiết kế chung cho các nút bấm Menu bên Sidebar -->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E0E6ED"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Margin" Value="0,2,0,2"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" Padding="15,0" CornerRadius="4">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#34495E"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
-        <!-- Content Control to render the active viewmodel -->
-        <ContentControl Content="{Binding Navigation.CurrentViewModel}" />
+        <Grid.ColumnDefinitions>
+            <!-- Cột trái: Sidebar Menu điều hướng -->
+            <ColumnDefinition Width="230"/>
+            <!-- Cột phải: Màn hình nội dung chính hiển thị các View -->
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- SIDEBAR MENU -->
+        <Grid Grid.Column="0" Background="#2C3E50">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="120"/> <!-- Logo và Thông tin cá nhân -->
+                <RowDefinition Height="*"/>   <!-- Danh sách các nút chức năng -->
+                <RowDefinition Height="60"/>  <!-- Nút Đăng xuất -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header Sidebar -->
+            <StackPanel Grid.Row="0" VerticalAlignment="Center" Margin="15,0">
+                <TextBlock Text="🍽️ RESTAURANT POS" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                <TextBlock Text="{Binding CurrentEmployeeName}" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding CurrentEmployeeRole}" Foreground="#95A5A6" FontSize="11"/>
+            </StackPanel>
+
+            <!-- 2. Danh sách các Tab chức năng (Chỉ hiển thị Tab tương ứng với quyền/Role) -->
+            <StackPanel Grid.Row="1" Margin="10,10,10,0">
+                <Button Content="📋 Sơ đồ bàn &amp; Gọi món" 
+                        Style="{StaticResource SidebarButtonStyle}"
+                        Command="{Binding NavigateWaiterCommand}"
+                        Visibility="{Binding IsWaiterVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <Button Content="🍳 Màn hình nhà bếp" 
+                        Style="{StaticResource SidebarButtonStyle}"
+                        Command="{Binding NavigateKitchenCommand}"
+                        Visibility="{Binding IsKitchenVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <Button Content="📦 Quản lý kho hàng" 
+                        Style="{StaticResource SidebarButtonStyle}"
+                        Command="{Binding NavigateInventoryCommand}"
+                        Visibility="{Binding IsInventoryVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <Button Content="💰 Thanh toán &amp; Báo cáo" 
+                        Style="{StaticResource SidebarButtonStyle}"
+                        Command="{Binding NavigateBillingCommand}"
+                        Visibility="{Binding IsBillingVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <Button Content="👥 Quản lý khách hàng" 
+                        Style="{StaticResource SidebarButtonStyle}"
+                        Command="{Binding NavigateCustomerCommand}"
+                        Visibility="{Binding IsCustomerVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <!-- 3. Nút Đăng xuất ở cuối Sidebar -->
+            <Button Grid.Row="2" 
+                    Content="🚪 ĐĂNG XUẤT" 
+                    Style="{StaticResource SidebarButtonStyle}"
+                    Foreground="#E74C3C"
+                    Command="{Binding LogoutCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+        </Grid>
+
+        <!-- VÙNG NỘI DUNG CHÍNH (BÊN PHẢI) -->
+        <Border Grid.Column="1" Background="#F8F9FA" Padding="20">
+            <ContentControl Content="{Binding Navigation.CurrentViewModel}" />
+        </Border>
     </Grid>
 </Window>

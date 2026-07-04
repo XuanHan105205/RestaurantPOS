@@ -5,7 +5,243 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Quản lý khách hàng (Hàn)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+    <Grid Background="#F5F6FA">
+        <Grid.RowDefinitions>
+            <!-- Row 0: Tiêu đề trang -->
+            <RowDefinition Height="Auto"/>
+            <!-- Row 1: Vùng chính (bảng và form) -->
+            <RowDefinition Height="*"/>
+            <!-- Row 2: Thanh trạng thái bên dưới -->
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+
+        <!-- 1. TIÊU ĐỀ TRANG -->
+        <Border Grid.Row="0" Background="White" Padding="15" Margin="0,0,0,15" CornerRadius="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="QUẢN LÝ KHÁCH HÀNG THÂN THIẾT" FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
+                    <TextBlock Text="Quản lý thành viên, hạng thẻ và điểm tích lũy của nhà hàng" FontSize="12" Foreground="#7F8C8D" Margin="0,4,0,0"/>
+                </StackPanel>
+                <!-- Nút Tải lại danh sách -->
+                <Button Grid.Column="1" Content="🔄 Tải lại" Width="90" Height="32" Background="#7F8C8D" Foreground="White" FontWeight="SemiBold" Command="{Binding LoadCustomersCommand}">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- 2. VÙNG CHÍNH -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!-- Cột trái: Bảng danh sách và Tìm kiếm -->
+                <ColumnDefinition Width="*"/>
+                <!-- Cột phải: Form Thêm/Sửa -->
+                <ColumnDefinition Width="360"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- CỘT TRÁI: DANH SÁCH & TÌM KIẾM -->
+            <Grid Grid.Column="0" Margin="0,0,15,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Thanh tìm kiếm -->
+                    <RowDefinition Height="*"/>    <!-- DataGrid danh sách -->
+                </Grid.RowDefinitions>
+
+                <!-- Thanh tìm kiếm -->
+                <Border Grid.Row="0" Background="White" Padding="15" Margin="0,0,0,10" CornerRadius="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" 
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                 Height="35" 
+                                 VerticalContentAlignment="Center" 
+                                 Padding="10,0" 
+                                 FontSize="13"
+                                 Tag="Nhập số điện thoại để tìm kiếm...">
+                            <!-- Placeholder Text -->
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    <VisualBrush AlignmentX="Left" Stretch="None">
+                                                        <VisualBrush.Visual>
+                                                            <TextBlock Text=" Nhập số điện thoại để tìm kiếm..." Foreground="#A0A5B5" FontSize="13" FontStyle="Italic" Padding="5,0"/>
+                                                        </VisualBrush.Visual>
+                                                    </VisualBrush>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Button Grid.Column="1" 
+                                Content="🔍 Tìm kiếm" 
+                                Width="100" 
+                                Height="35" 
+                                Margin="10,0,0,0"
+                                Background="#3F51B5" 
+                                Foreground="White" 
+                                FontWeight="Bold"
+                                Command="{Binding SearchCommand}">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- DataGrid danh sách khách hàng -->
+                <DataGrid Grid.Row="1" 
+                          ItemsSource="{Binding Customers}" 
+                          SelectedItem="{Binding SelectedCustomer}" 
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True"
+                          Background="White" 
+                          BorderThickness="0"
+                          RowHeight="38"
+                          ColumnHeaderHeight="35"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#E2E8F0"
+                          HeadersVisibility="Column"
+                          SelectionMode="Single"
+                          AlternatingRowBackground="#F9FAFB">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#ECF0F1"/>
+                            <Setter Property="Foreground" Value="#2C3E50"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="10,5"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+                        </Style>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Padding" Value="10,5"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridCell">
+                                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                            <ContentPresenter VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding CustomerId}" Width="60"/>
+                        <DataGridTextColumn Header="Họ và Tên" Binding="{Binding FullName}" Width="*"/>
+                        <DataGridTextColumn Header="Số Điện Thoại" Binding="{Binding Phone}" Width="150"/>
+                        <DataGridTextColumn Header="Hạng Thành Viên" Binding="{Binding MembershipTier}" Width="140"/>
+                        <DataGridTextColumn Header="Điểm Tích Lũy" Binding="{Binding LoyaltyPoints}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+
+            <!-- CỘT PHẢI: FORM CHI TIẾT & CHỨC NĂNG -->
+            <Border Grid.Column="1" Background="White" Padding="20" CornerRadius="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Tiêu đề form -->
+                        <RowDefinition Height="*"/>    <!-- Các trường nhập -->
+                        <RowDefinition Height="Auto"/> <!-- Các nút bấm -->
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="THÔNG TIN CHI TIẾT" FontSize="16" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,20"/>
+
+                    <StackPanel Grid.Row="1">
+                        <!-- Họ và tên -->
+                        <TextBlock Text="Họ và tên khách hàng *" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,15"/>
+
+                        <!-- Số điện thoại -->
+                        <TextBlock Text="Số điện thoại *" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,15"/>
+
+                        <!-- Hạng thành viên -->
+                        <TextBlock Text="Hạng thành viên" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <ComboBox SelectedValue="{Binding MembershipTier, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" Height="35" VerticalContentAlignment="Center" Margin="0,0,0,15">
+                            <ComboBoxItem Content="Regular (Mặc định)" Tag="regular"/>
+                            <ComboBoxItem Content="VIP" Tag="vip"/>
+                            <ComboBoxItem Content="VIP Gold" Tag="vip_gold"/>
+                        </ComboBox>
+
+                        <!-- Điểm tích lũy -->
+                        <TextBlock Text="Điểm tích lũy" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding LoyaltyPoints, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,15"/>
+                        
+                        <TextBlock Text="* Lưu ý: Hạng thành viên sẽ tự động cập nhật theo điểm tích lũy khi bạn lưu thông tin." FontStyle="Italic" FontSize="11" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Các nút bấm CRUD -->
+                    <Grid Grid.Row="2" Margin="0,20,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Thêm mới -->
+                        <Button Grid.Row="0" Grid.Column="0" Content="➕ Thêm mới" Height="38" Margin="0,0,5,5" Background="#2ECC71" Foreground="White" FontWeight="Bold" Command="{Binding AddCustomerCommand}">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+
+                        <!-- Cập nhật -->
+                        <Button Grid.Row="0" Grid.Column="1" Content="💾 Cập nhật" Height="38" Margin="5,0,0,5" Background="#3498DB" Foreground="White" FontWeight="Bold" Command="{Binding UpdateCustomerCommand}">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+
+                        <!-- Xóa -->
+                        <Button Grid.Row="1" Grid.Column="0" Content="🗑️ Xóa" Height="38" Margin="0,5,5,0" Background="#E74C3C" Foreground="White" FontWeight="Bold" Command="{Binding DeleteCustomerCommand}">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+
+                        <!-- Làm sạch form -->
+                        <Button Grid.Row="1" Grid.Column="1" Content="🧹 Làm mới" Height="38" Margin="5,5,0,0" Background="#95A5A6" Foreground="White" FontWeight="Bold" Command="{Binding ClearFormCommand}">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 3. THANH TRẠNG THÁI -->
+        <StatusBar Grid.Row="2" Background="#2C3E50" Foreground="White">
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusMessage}" FontSize="12" FontWeight="SemiBold" Margin="10,0"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </UserControl>

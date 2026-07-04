@@ -6,13 +6,109 @@
         xmlns:vm="clr-namespace:RestaurantPOS.ViewModels.Core"
         mc:Ignorable="d"
         Title="LoginWindow" Height="450" Width="800"
-        WindowStartupLocation="CenterScreen">
-    
+        WindowStartupLocation="CenterScreen"
+    ResizeMode="NoResize"
+        Background="#F5F6FA">
+
     <Window.DataContext>
         <vm:LoginViewModel />
     </Window.DataContext>
-    
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+
     <Grid>
-        <TextBlock Text="Màn hình đăng nhập (Hàn)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontWeight="Bold"/>
+        <Grid.ColumnDefinitions>
+            <!-- Cột trái: Hình ảnh thương hiệu hoặc Banner giới thiệu -->
+            <ColumnDefinition Width="300"/>
+            <!-- Cột phải: Form nhập liệu đăng nhập -->
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <!-- CỘT TRÁI: BANNER THƯƠNG HIỆU -->
+        <Border Grid.Column="0" Background="#3F51B5">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <!-- Icon hoặc Chữ lớn thương hiệu -->
+                <TextBlock Text="🍽️" FontSize="70" HorizontalAlignment="Center"/>
+                <TextBlock Text="Restaurant POS" Foreground="White" FontSize="26" FontWeight="Bold" Margin="0,15,0,5" HorizontalAlignment="Center"/>
+                <TextBlock Text="Hệ thống quản lý nhà hàng" Foreground="#E0E0E0" FontSize="14" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+        <!-- CỘT PHẢI: FORM ĐĂNG NHẬP -->
+        <Grid Grid.Column="1" Margin="40,30,40,30">
+            <StackPanel VerticalAlignment="Center">
+
+                <TextBlock Text="WELCOME" Foreground="#333333" FontSize="20" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock Text="Vui lòng đăng nhập tài khoản nhân viên của bạn" Foreground="#7F8C8D" FontSize="12" Margin="0,0,0,25"/>
+                <!-- Nhập tài khoản (Username) -->
+                <TextBlock Text="Tên Đăng Nhập" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                <TextBox x:Name="UsernameInput" 
+                         Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="35" 
+                         VerticalContentAlignment="Center" 
+                         Padding="10,0" 
+                         Margin="0,0,0,15"
+                         FontSize="14"/>
+                <!-- Nhập mật khẩu (Password) -->
+                <TextBlock Text="Mật Khẩu" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                <PasswordBox x:Name="PasswordInput" 
+                             Height="35" 
+                             VerticalContentAlignment="Center" 
+                             Padding="10,0" 
+                             Margin="0,0,0,10"
+                             FontSize="14"/>
+                <!-- Thông báo lỗi (Hiển thị động khi sai tài khoản/mật khẩu) -->
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="#E74C3C" 
+                           FontSize="12" 
+                           FontWeight="Medium"
+                           Margin="0,0,0,15"
+                           Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"/>
+                               <!-- Nút Đăng nhập (Đã thu nhỏ, nền Blue, chữ White) -->
+                <Button Content="ĐĂNG NHẬP" 
+                        Width="150"
+                        Height="32" 
+                        HorizontalAlignment="Center"
+                        Foreground="White" 
+                        FontWeight="Bold" 
+                        FontSize="13"
+                        Cursor="Hand"
+                        Command="{Binding LoginCommand}" 
+                        CommandParameter="{Binding ElementName=PasswordInput}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <!-- Nền Blue mặc định -->
+                            <Setter Property="Background" Value="#1E88E5"/>
+                            <!-- Template tùy biến bo góc nhẹ 4px -->
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" 
+                                                CornerRadius="4" 
+                                                BorderThickness="0">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                              VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <!-- Đổi màu xanh đậm hơn khi di chuột qua -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#1565C0"/>
+                                </Trigger>
+                                <!-- Màu sắc khi nút bị khóa (Disabled) -->
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Background" Value="#B0BEC5"/>
+                                    <Setter Property="Foreground" Value="#ECEFF1"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

@@ -9,5 +9,6 @@ namespace RestaurantPOS.Services
         Customer GetCustomerByPhone(string phone);
         bool AddCustomer(Customer customer);
         bool UpdateCustomer(Customer customer);
+        bool DeleteCustomer(int id);
     }
 }
