@@ -145,6 +145,32 @@ Tất cả thành viên bắt buộc phải tuân theo quy tắc đặt tên sau
 * ✔️ Mọi truy vấn cơ sở dữ liệu phải tuân theo đúng luồng:
   `View` ➔ `ViewModel` ➔ `Service` ➔ `Repository` ➔ `RestaurantPOSDbContext (EF Core)`
 
+* 💡 **Hướng dẫn viết code Repository với EF Core**:
+  * Mọi truy vấn dữ liệu phải sử dụng `RestaurantPOSDbContext` qua cú pháp LINQ thay cho ADO.NET cũ.
+  * **Lấy dữ liệu (SELECT)**:
+    ```csharp
+    using (var context = new RestaurantPOSDbContext())
+    {
+        return context.TableName.ToList(); // Hoặc .FirstOrDefault(x => x.Id == id)
+    }
+    ```
+  * **Thêm dữ liệu (INSERT)**:
+    ```csharp
+    using (var context = new RestaurantPOSDbContext())
+    {
+        context.TableName.Add(entity);
+        return context.SaveChanges() > 0;
+    }
+    ```
+  * **Cập nhật & Xóa (UPDATE & DELETE)**:
+    ```csharp
+    using (var context = new RestaurantPOSDbContext())
+    {
+        context.TableName.Update(entity); // Hoặc context.TableName.Remove(entity)
+        return context.SaveChanges() > 0;
+    }
+    ```
+
 ### 4. Quy tắc làm việc với Git
 * ✔️ Trước khi viết code hoặc đầu buổi làm việc, bắt buộc phải `git pull` để nhận các cập nhật mới nhất từ nhóm.
 * ✔️ **Quy tắc đặt tên nhánh (Branch Naming)**: Khi làm tính năng mới, tạo nhánh riêng từ `main` theo mẫu: `feature/ten_thanh_vien-ten_tinh_nang` (ví dụ: `feature/hung-goi_mon`, `feature/khai-man_hinh_bep`). Tuyệt đối không code trực tiếp trên nhánh `main`.
