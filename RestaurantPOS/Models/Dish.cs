@@ -7,6 +7,6 @@ namespace RestaurantPOS.Models
         public decimal Price { get; set; }
         public int? CategoryId { get; set; }
         public string AvailabilityStatus { get; set; } // 'active', 'discontinued'
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }
