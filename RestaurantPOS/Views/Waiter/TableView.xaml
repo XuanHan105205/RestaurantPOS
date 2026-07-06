@@ -3,9 +3,324 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantPOS.Views.Waiter"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Sơ đồ bàn &amp; Gọi món (Hưng - Member 1)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+             d:DesignHeight="600" d:DesignWidth="900"
+             Background="#F8F9FA">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+        <!-- Style for Table Card ListBoxItem -->
+        <Style x:Key="TableItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Border" 
+                                CornerRadius="12" 
+                                BorderThickness="2" 
+                                Background="White"
+                                BorderBrush="#E2E8F0"
+                                Padding="15"
+                                Width="160"
+                                Height="140"
+                                Cursor="Hand">
+                            <!-- Soft drop shadow -->
+                            <Border.Effect>
+                                <DropShadowEffect Color="#A0AEC0" BlurRadius="6" ShadowDepth="2" Opacity="0.15"/>
+                            </Border.Effect>
+                            
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Table Area & Name -->
+                                <StackPanel Grid.Row="0">
+                                    <TextBlock Text="{Binding Area}" FontSize="11" Foreground="#718096" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding TableName}" FontSize="16" FontWeight="Bold" Foreground="#2D3748" Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <!-- Capacity Badge -->
+                                <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Horizontal">
+                                    <TextBlock Text="👥 " FontSize="14" Foreground="#A0AEC0"/>
+                                    <TextBlock Text="Sức chứa: " FontSize="12" Foreground="#718096"/>
+                                    <TextBlock Text="{Binding Capacity}" FontSize="12" FontWeight="SemiBold" Foreground="#2D3748"/>
+                                </StackPanel>
+
+                                <!-- Status Badge -->
+                                <Border Grid.Row="2" CornerRadius="6" Padding="6,3" HorizontalAlignment="Left">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="available">
+                                                    <Setter Property="Background" Value="#E6FFFA"/>
+                                                    <Setter Property="Child">
+                                                        <Setter.Value>
+                                                            <TextBlock Text="🟢 Trống" FontSize="11" FontWeight="Bold" Foreground="#1A7F64"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="occupied">
+                                                    <Setter Property="Background" Value="#FFEFFF"/>
+                                                    <Setter Property="Child">
+                                                        <Setter.Value>
+                                                            <TextBlock Text="🔴 Đang có khách" FontSize="11" FontWeight="Bold" Foreground="#C53030"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="needs_cleaning">
+                                                    <Setter Property="Background" Value="#FAF5FF"/>
+                                                    <Setter Property="Child">
+                                                        <Setter.Value>
+                                                            <TextBlock Text="🧹 Cần dọn dẹp" FontSize="11" FontWeight="Bold" Foreground="#6B46C1"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="reserved">
+                                                    <Setter Property="Background" Value="#EBF8FF"/>
+                                                    <Setter Property="Child">
+                                                        <Setter.Value>
+                                                            <TextBlock Text="🔵 Đã đặt trước" FontSize="11" FontWeight="Bold" Foreground="#2B6CB0"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Triggers for hover & selection visual feedback -->
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#F7FAFC"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#CBD5E0"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#3182CE"/>
+                                <Setter TargetName="Border" Property="BorderThickness" Value="3"/>
+                                <Setter TargetName="Border" Property="Background" Value="#EBF8FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <!-- Sơ đồ bàn ăn (Trái) -->
+            <ColumnDefinition Width="2*"/>
+            <!-- Bảng điều khiển tác vụ (Phải) -->
+            <ColumnDefinition Width="340"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- SƠ ĐỒ BÀN ĂN -->
+        <Grid Grid.Column="0" Margin="0,0,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Tiêu đề + Thống kê trạng thái nhanh -->
+            <StackPanel Grid.Row="0" Margin="10,0,10,15">
+                <TextBlock Text="📍 SƠ ĐỒ BÀN ĂN" FontSize="20" FontWeight="Bold" Foreground="#2D3748"/>
+                <TextBlock Text="Nhấn chọn bàn để mở session, gọi món hoặc thay đổi trạng thái" FontSize="12" Foreground="#718096" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <!-- Danh sách bàn ăn -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ListBox ItemsSource="{Binding Tables}"
+                         SelectedItem="{Binding SelectedTable}"
+                         ItemContainerStyle="{StaticResource TableItemStyle}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- BẢNG ĐIỀU KHIỂN TÁC VỤ (PHẢI) -->
+        <Border Grid.Column="1" Background="White" CornerRadius="16" BorderBrush="#E2E8F0" BorderThickness="1" Padding="20">
+            <Border.Effect>
+                <DropShadowEffect Color="#A0AEC0" BlurRadius="10" ShadowDepth="4" Opacity="0.1"/>
+            </Border.Effect>
+            
+            <Grid>
+                <!-- Khi chưa chọn bàn nào -->
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"
+                            Visibility="{Binding SelectedTable, Converter={StaticResource BoolToVis}, ConverterParameter=inverse}">
+                    <TextBlock Text="🍽️" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Chưa Chọn Bàn" FontSize="16" FontWeight="Bold" Foreground="#718096" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                    <TextBlock Text="Vui lòng nhấn vào một bàn trên sơ đồ để bắt đầu" FontSize="12" Foreground="#A0AEC0" TextAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <!-- Khi đã chọn bàn -->
+                <Grid Visibility="{Binding SelectedTable, Converter={StaticResource BoolToVis}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Header bàn selected -->
+                        <RowDefinition Height="*"/>    <!-- Chi tiết động -->
+                        <RowDefinition Height="Auto"/> <!-- Action footer -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="{Binding SelectedTable.TableName}" FontSize="22" FontWeight="Bold" Foreground="#1A365D"/>
+                        <TextBlock Text="{Binding SelectedTable.Area}" FontSize="13" Foreground="#718096"/>
+                        <Separator Margin="0,10,0,0"/>
+                    </StackPanel>
+
+                    <!-- Nội dung chi tiết tùy trạng thái bàn -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- 1. Trạng thái Trống (available) -> Cho phép mở bàn ăn mới -->
+                            <StackPanel Visibility="{Binding IsOpenSessionAllowed, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="MỞ BÀN ĂN MỚI" FontSize="14" FontWeight="Bold" Foreground="#2B6CB0" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="Số điện thoại khách hàng (Tùy chọn):" FontSize="12" Foreground="#4A5568" Margin="0,0,0,4"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding CustomerPhoneSearch, UpdateSourceTrigger=PropertyChanged}" 
+                                             Padding="8" FontSize="13" VerticalContentAlignment="Center" BorderBrush="#CBD5E0" Height="36"/>
+                                    <Button Grid.Column="1" Content="Tìm" Command="{Binding SearchCustomerCommand}"
+                                            Background="#4A5568" Foreground="White" Width="55" Margin="5,0,0,0" FontWeight="SemiBold" Cursor="Hand">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Kết quả tìm kiếm khách hàng -->
+                                <TextBlock Text="{Binding CustomerSearchResultMessage}" FontSize="12" TextWrapping="Wrap" Foreground="#4A5568" Margin="0,0,0,15"/>
+
+                                <Border Background="#EDF2F7" Padding="12" CornerRadius="8" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Thông tin khách đặt bàn:" FontSize="11" Foreground="#718096" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding SelectedCustomer.FullName, TargetNullValue='Khách vãng lai'}" FontSize="14" FontWeight="Bold" Foreground="#2D3748" Margin="0,5,0,0"/>
+                                        <TextBlock Text="{Binding SelectedCustomer.MembershipTier, TargetNullValue='regular'}" FontSize="11" Foreground="#4A5568"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button Content="🚀 MỞ BÀN / BẮT ĐẦU ĂN" Command="{Binding OpenSessionCommand}"
+                                        Background="#319795" Foreground="White" Height="42" FontSize="14" FontWeight="Bold" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- 2. Trạng thái Đang có khách (occupied) -> Hiển thị session và gọi món -->
+                            <StackPanel Visibility="{Binding IsSessionInfoVisible, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="THÔNG TIN BÀN ĐANG DÙNG" FontSize="14" FontWeight="Bold" Foreground="#C53030" Margin="0,0,0,10"/>
+                                
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Session ID:" Foreground="#718096" Margin="0,3"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ActiveSession.SessionId}" FontWeight="Bold" Foreground="#2D3748" Margin="0,3"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Giờ vào:" Foreground="#718096" Margin="0,3"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ActiveSession.OpenedAt, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#2D3748" Margin="0,3"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Khách hàng:" Foreground="#718096" Margin="0,3"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedCustomer.FullName, TargetNullValue='Khách vãng lai'}" FontWeight="Bold" Foreground="#2B6CB0" Margin="0,3"/>
+                                </Grid>
+
+                                <Button Content="➕ GỌI THÊM MÓN ĂN" Command="{Binding GoToOrderCommand}"
+                                        Background="#3182CE" Foreground="White" Height="45" FontSize="14" FontWeight="Bold" Margin="0,5,0,10" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <Button Content="🔍 XEM CHI TIẾT MÓN / HỦY MÓN" Command="{Binding ViewOrderDetailsCommand}"
+                                        Background="#4A5568" Foreground="White" Height="40" FontSize="13" FontWeight="Bold" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- 3. Trạng thái Cần dọn dẹp (needs_cleaning) -> Waiter có thể nhấn dọn xong -->
+                            <StackPanel Visibility="{Binding IsCleaningAllowed, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="BÀN CHỜ DỌN DẸP" FontSize="14" FontWeight="Bold" Foreground="#6B46C1" Margin="0,0,0,10"/>
+                                <TextBlock Text="Khách vừa thanh toán xong. Vui lòng dọn dẹp bàn sạch sẽ và nhấn nút bên dưới để chuyển sang Trống (Sẵn sàng đón khách)."
+                                           TextWrapping="Wrap" FontSize="12" Foreground="#4A5568" Margin="0,0,0,20" LineHeight="18"/>
+                                
+                                <Button Content="🧹 XÁC NHẬN ĐÃ DỌN SẠCH" Command="{Binding CleanTableCommand}"
+                                        Background="#805AD5" Foreground="White" Height="45" FontSize="14" FontWeight="Bold" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- 4. Trạng thái Đã đặt trước (reserved) -->
+                            <StackPanel Visibility="{Binding SelectedTable.Status, Converter={StaticResource BoolToVis}, ConverterParameter=reserved}">
+                                <TextBlock Text="BÀN ĐÃ ĐẶT TRƯỚC" FontSize="14" FontWeight="Bold" Foreground="#2B6CB0" Margin="0,0,0,10"/>
+                                <TextBlock Text="Bàn này đã được đặt trước từ trước. Khi khách đến, hãy chuyển đổi trạng thái bằng cách mở session ăn uống trực tiếp."
+                                           TextWrapping="Wrap" FontSize="12" Foreground="#4A5568" Margin="0,0,0,20" LineHeight="18"/>
+                                
+                                <Button Content="🚀 MỞ BÀN ĐÓN KHÁCH ĐÃ ĐẶT" Command="{Binding OpenSessionCommand}"
+                                        Background="#3182CE" Foreground="White" Height="45" FontSize="14" FontWeight="Bold" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

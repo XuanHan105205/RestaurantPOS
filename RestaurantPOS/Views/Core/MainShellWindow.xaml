@@ -28,6 +28,9 @@
         <DataTemplate DataType="{x:Type waiterVm:TableViewModel}">
             <waiterView:TableView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type waiterVm:OrderViewModel}">
+            <waiterView:OrderView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type kitchenVm:KitchenViewModel}">
             <kitchenView:KitchenView />
         </DataTemplate>
