@@ -3,9 +3,55 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantPOS.Views.Billing"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Thanh toán &amp; Báo cáo (Đắc - Member 4)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <Grid Background="#F5F6FA">
+        <TabControl BorderThickness="0" Background="Transparent" Padding="0">
+            <!-- Custom Tab Style -->
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="Border" BorderThickness="0,0,0,3" BorderBrush="Transparent" Padding="20,12" Background="Transparent" SnapsToDevicePixels="True">
+                                    <ContentPresenter x:Name="ContentSite" ContentSource="Header" RecognizesAccessKey="True"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="#3F51B5"/>
+                                        <Setter Property="Foreground" Value="#3F51B5"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="#5A6A85"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#EBEFFA"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <TabItem Header="💰 THANH TOÁN (CHECKOUT)" FontSize="14" Cursor="Hand">
+                <local:CheckoutView DataContext="{Binding CheckoutVM}"/>
+            </TabItem>
+
+            <TabItem Header="📊 BÁO CÁO DOANH THU" FontSize="14" Cursor="Hand">
+                <local:ReportDashboardView DataContext="{Binding ReportVM}"/>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>
