@@ -130,5 +130,43 @@ namespace RestaurantPOS.Repositories
                 return context.Categories.ToList();
             }
         }
+
+        public bool CreateOrderWithItems(int sessionId, int employeeId, List<OrderItem> items)
+        {
+            using (var context = new RestaurantPOSDbContext())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var order = new Order
+                        {
+                            SessionId = sessionId,
+                            CreatedByEmployeeId = employeeId,
+                            OrderedAt = DateTime.Now
+                        };
+                        context.Orders.Add(order);
+                        context.SaveChanges();
+
+                        foreach (var item in items)
+                        {
+                            item.OrderId = order.OrderId;
+                            item.Status = "pending";
+                            item.StatusUpdatedAt = DateTime.Now;
+                            context.OrderItems.Add(item);
+                        }
+
+                        context.SaveChanges();
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+                }
+            }
+        }
     }
 }

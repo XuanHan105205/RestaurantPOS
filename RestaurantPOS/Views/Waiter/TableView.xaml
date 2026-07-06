@@ -163,14 +163,14 @@
             <Grid>
                 <!-- Khi chưa chọn bàn nào -->
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"
-                            Visibility="{Binding SelectedTable, Converter={StaticResource BoolToVis}, ConverterParameter=inverse}">
+                            Visibility="{Binding IsNoTableSelected, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="🍽️" FontSize="48" HorizontalAlignment="Center"/>
                     <TextBlock Text="Chưa Chọn Bàn" FontSize="16" FontWeight="Bold" Foreground="#718096" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     <TextBlock Text="Vui lòng nhấn vào một bàn trên sơ đồ để bắt đầu" FontSize="12" Foreground="#A0AEC0" TextAlignment="Center" Margin="0,5,0,0"/>
                 </StackPanel>
 
                 <!-- Khi đã chọn bàn -->
-                <Grid Visibility="{Binding SelectedTable, Converter={StaticResource BoolToVis}}">
+                <Grid Visibility="{Binding IsTableSelected, Converter={StaticResource BoolToVis}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/> <!-- Header bàn selected -->
                         <RowDefinition Height="*"/>    <!-- Chi tiết động -->

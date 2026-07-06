@@ -13,5 +13,6 @@ namespace RestaurantPOS.Repositories
         bool DeleteOrderItem(int orderItemId);
         List<Dish> GetActiveDishes();
         List<Category> GetAllCategories();
+        bool CreateOrderWithItems(int sessionId, int employeeId, List<OrderItem> items);
     }
 }

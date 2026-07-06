@@ -101,6 +101,9 @@ namespace RestaurantPOS.ViewModels.Waiter
 
         public decimal CartTotal => Cart.Sum(item => item.Subtotal);
 
+        public bool IsCartEmpty => Cart.Count == 0;
+        public bool IsCartNotEmpty => Cart.Count > 0;
+
         public ICommand SelectCategoryCommand { get; }
         public ICommand AddToCartCommand { get; }
         public ICommand RemoveFromCartCommand { get; }
@@ -115,7 +118,12 @@ namespace RestaurantPOS.ViewModels.Waiter
             ActiveSession = session;
             _orderService = new OrderService();
             _cart = new ObservableCollection<CartItem>();
-            _cart.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CartTotal));
+            _cart.CollectionChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(CartTotal));
+                OnPropertyChanged(nameof(IsCartEmpty));
+                OnPropertyChanged(nameof(IsCartNotEmpty));
+            };
 
             SelectCategoryCommand = new RelayCommand<Category>(category => SelectedCategory = category);
             AddToCartCommand = new RelayCommand<Dish>(AddToCart);

@@ -30,9 +30,14 @@ namespace RestaurantPOS.ViewModels.Waiter
                 if (SetProperty(ref _selectedTable, value))
                 {
                     OnTableSelected();
+                    OnPropertyChanged(nameof(IsTableSelected));
+                    OnPropertyChanged(nameof(IsNoTableSelected));
                 }
             }
         }
+
+        public bool IsTableSelected => SelectedTable != null;
+        public bool IsNoTableSelected => SelectedTable == null;
 
         private DiningSession? _activeSession;
         public DiningSession? ActiveSession

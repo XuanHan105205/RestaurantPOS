@@ -9,6 +9,8 @@
              Background="#F8F9FA">
 
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
         <!-- Style for Category ListBoxItem (looks like clean sidebar buttons) -->
         <Style x:Key="CategoryItemStyle" TargetType="ListBoxItem">
             <Setter Property="Height" Value="45"/>
@@ -200,10 +202,10 @@
                 <Grid Grid.Row="1" Margin="0,0,0,10">
                     <!-- Giỏ trống -->
                     <TextBlock Text="Chưa chọn món nào." FontSize="14" Foreground="#A0AEC0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Visibility="{Binding Cart.Count, Converter={StaticResource BoolToVis}, ConverterParameter=inverse}"/>
+                               Visibility="{Binding IsCartEmpty, Converter={StaticResource BoolToVis}}"/>
 
                     <!-- Giỏ có hàng -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding Cart.Count, Converter={StaticResource BoolToVis}}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding IsCartNotEmpty, Converter={StaticResource BoolToVis}}">
                         <ItemsControl ItemsSource="{Binding Cart}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
