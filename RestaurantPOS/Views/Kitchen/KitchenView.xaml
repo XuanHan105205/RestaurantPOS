@@ -3,9 +3,447 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RestaurantPOS.Views.Kitchen"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Màn hình nhà bếp (Khải - Member 2)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+             d:DesignHeight="700" d:DesignWidth="1100"
+             Background="#1E272C">
+
+    <UserControl.Resources>
+        <!-- Style for column titles -->
+        <Style x:Key="ColumnHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="10,12,10,12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Style for Kanban Column Border -->
+        <Style x:Key="ColumnBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#171E22"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2D383F"/>
+        </Style>
+
+        <!-- Touch-friendly modern buttons for state transitions -->
+        <Style x:Key="TransitionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1ABC9C"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#16A085"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Color coding item cards base styles -->
+        <Style x:Key="ItemCardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#263238"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#37474F"/>
+        </Style>
+
+        <!-- Note box style with conditional visibility -->
+        <Style x:Key="NoteBoxStyle" TargetType="Border">
+            <Setter Property="Background" Value="#3E2723"/>
+            <Setter Property="BorderBrush" Value="#D84315"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Note}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Note}" Value="">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <!-- Header bar -->
+            <RowDefinition Height="Auto"/>
+            <!-- Kanban Board -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER BAR -->
+        <Grid Grid.Row="0" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="🍳 HỆ THỐNG MÀN HÌNH BẾP (KDS)" Foreground="#ECEFF1" FontSize="22" FontWeight="Bold"/>
+                <TextBlock Text="{Binding LastUpdatedText}" Foreground="#90A4AE" FontSize="13" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" 
+                    Content="🔄 Làm mới ngay" 
+                    Command="{Binding RefreshCommand}"
+                    Background="#37474F" 
+                    Foreground="White" 
+                    Padding="15,8"
+                    FontWeight="SemiBold"
+                    Cursor="Hand"
+                    BorderThickness="0"
+                    VerticalAlignment="Center">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+
+        <!-- KANBAN BOARD -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!-- 1. Chờ chế biến (Pending) -->
+                <ColumnDefinition Width="*"/>
+                <!-- 2. Đang chế biến (Cooking) -->
+                <ColumnDefinition Width="*"/>
+                <!-- 3. Chờ phục vụ (Ready) -->
+                <ColumnDefinition Width="*"/>
+                <!-- 4. Đã phục vụ (Served) -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- COLUMN 1: CHỜ CHẾ BIẾN (PENDING) -->
+            <Border Grid.Column="0" Style="{StaticResource ColumnBorderStyle}" BorderBrush="#E67E22">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#E67E22" CornerRadius="7,7,0,0" Padding="5,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="📋 CHỜ CHẾ BIẾN" Style="{StaticResource ColumnHeaderStyle}" Foreground="White"/>
+                            <Border Background="#D35400" CornerRadius="10" MinWidth="24" Height="20" Margin="5,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PendingItems.Count}" Foreground="White" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,0"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="8">
+                        <ItemsControl ItemsSource="{Binding PendingItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource ItemCardBorderStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Row 1: Dish Name and Qty -->
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding DishName}" Foreground="White" FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Grid.Column="0"/>
+                                                <Border Background="#E74C3C" CornerRadius="12" MinWidth="26" Height="24" Padding="5,0" Grid.Column="1" VerticalAlignment="Top" Margin="5,0,0,0">
+                                                    <TextBlock Text="{Binding Quantity, StringFormat='x{0}'}" Foreground="White" FontSize="14" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Row 2: Table Name Badge -->
+                                            <Border Grid.Row="1" Background="#37474F" CornerRadius="4" Padding="6,3" HorizontalAlignment="Left" Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding TableName}" Foreground="#ECEFF1" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+
+                                            <!-- Row 3: Time elapsed color coded -->
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                                                <TextBlock Text="🕒 Gọi lúc: " Foreground="#90A4AE" FontSize="12"/>
+                                                <TextBlock Text="{Binding OrderedAt, StringFormat='{}{0:HH:mm:ss}'}" Foreground="#ECEFF1" FontSize="12" FontWeight="SemiBold"/>
+                                                <TextBlock Text=" (" Foreground="#90A4AE" FontSize="12"/>
+                                                <TextBlock Text="{Binding MinutesSinceOrdered, StringFormat='{}{0} phút trước'}" FontSize="12" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DelayLevel}" Value="Normal">
+                                                                    <Setter Property="Foreground" Value="#2ECC71"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DelayLevel}" Value="Medium">
+                                                                    <Setter Property="Foreground" Value="#F39C12"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DelayLevel}" Value="High">
+                                                                    <Setter Property="Foreground" Value="#E74C3C"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text=")" Foreground="#90A4AE" FontSize="12"/>
+                                            </StackPanel>
+
+                                            <!-- Row 4: Note (If exists) -->
+                                            <Border Grid.Row="3" Style="{StaticResource NoteBoxStyle}">
+                                                <TextBlock Text="{Binding Note}" Foreground="#FF8A65" FontSize="12" FontWeight="SemiBold" FontStyle="Italic" TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <!-- Row 5: Action Button -->
+                                            <Button Grid.Row="4" 
+                                                    Content="Bắt đầu chế biến 🍳" 
+                                                    Style="{StaticResource TransitionButtonStyle}"
+                                                    Background="#3498DB"
+                                                    Command="{Binding DataContext.StartCookingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- COLUMN 2: ĐANG CHẾ BIẾN (COOKING) -->
+            <Border Grid.Column="1" Style="{StaticResource ColumnBorderStyle}" BorderBrush="#3498DB">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#3498DB" CornerRadius="7,7,0,0" Padding="5,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="🍳 ĐANG CHẾ BIẾN" Style="{StaticResource ColumnHeaderStyle}" Foreground="White"/>
+                            <Border Background="#2980B9" CornerRadius="10" MinWidth="24" Height="20" Margin="5,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CookingItems.Count}" Foreground="White" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,0"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="8">
+                        <ItemsControl ItemsSource="{Binding CookingItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource ItemCardBorderStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding DishName}" Foreground="White" FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Grid.Column="0"/>
+                                                <Border Background="#E74C3C" CornerRadius="12" MinWidth="26" Height="24" Padding="5,0" Grid.Column="1" VerticalAlignment="Top" Margin="5,0,0,0">
+                                                    <TextBlock Text="{Binding Quantity, StringFormat='x{0}'}" Foreground="White" FontSize="14" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <Border Grid.Row="1" Background="#37474F" CornerRadius="4" Padding="6,3" HorizontalAlignment="Left" Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding TableName}" Foreground="#ECEFF1" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                                                <TextBlock Text="🕒 Chờ: " Foreground="#90A4AE" FontSize="12"/>
+                                                <TextBlock Text="{Binding MinutesSinceOrdered, StringFormat='{}{0} phút'}" FontSize="12" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DelayLevel}" Value="Normal">
+                                                                    <Setter Property="Foreground" Value="#2ECC71"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DelayLevel}" Value="Medium">
+                                                                    <Setter Property="Foreground" Value="#F39C12"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DelayLevel}" Value="High">
+                                                                    <Setter Property="Foreground" Value="#E74C3C"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <Border Grid.Row="3" Style="{StaticResource NoteBoxStyle}">
+                                                <TextBlock Text="{Binding Note}" Foreground="#FF8A65" FontSize="12" FontWeight="SemiBold" FontStyle="Italic" TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <Button Grid.Row="4" 
+                                                    Content="Hoàn thành món 🔔" 
+                                                    Style="{StaticResource TransitionButtonStyle}"
+                                                    Background="#2ECC71"
+                                                    Command="{Binding DataContext.MarkReadyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- COLUMN 3: CHỜ PHỤC VỤ (READY) -->
+            <Border Grid.Column="2" Style="{StaticResource ColumnBorderStyle}" BorderBrush="#2ECC71">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#2ECC71" CornerRadius="7,7,0,0" Padding="5,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="🔔 CHỜ PHỤC VỤ" Style="{StaticResource ColumnHeaderStyle}" Foreground="White"/>
+                            <Border Background="#27AE60" CornerRadius="10" MinWidth="24" Height="20" Margin="5,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ReadyItems.Count}" Foreground="White" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,0"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="8">
+                        <ItemsControl ItemsSource="{Binding ReadyItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource ItemCardBorderStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding DishName}" Foreground="White" FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Grid.Column="0"/>
+                                                <Border Background="#E74C3C" CornerRadius="12" MinWidth="26" Height="24" Padding="5,0" Grid.Column="1" VerticalAlignment="Top" Margin="5,0,0,0">
+                                                    <TextBlock Text="{Binding Quantity, StringFormat='x{0}'}" Foreground="White" FontSize="14" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <Border Grid.Row="1" Background="#37474F" CornerRadius="4" Padding="6,3" HorizontalAlignment="Left" Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding TableName}" Foreground="#ECEFF1" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                                                <TextBlock Text="🕒 Xong lúc: " Foreground="#90A4AE" FontSize="12"/>
+                                                <TextBlock Text="{Binding StatusUpdatedAt, StringFormat='{}{0:HH:mm:ss}'}" Foreground="#2ECC71" FontSize="12" FontWeight="Bold"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Row="3" Style="{StaticResource NoteBoxStyle}">
+                                                <TextBlock Text="{Binding Note}" Foreground="#FF8A65" FontSize="12" FontWeight="SemiBold" FontStyle="Italic" TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <Button Grid.Row="4" 
+                                                    Content="Đã phục vụ khách ✔️" 
+                                                    Style="{StaticResource TransitionButtonStyle}"
+                                                    Background="#E67E22"
+                                                    Command="{Binding DataContext.MarkServedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- COLUMN 4: ĐÃ PHỤC VỤ (SERVED) -->
+            <Border Grid.Column="3" Style="{StaticResource ColumnBorderStyle}" BorderBrush="#78909C">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#78909C" CornerRadius="7,7,0,0" Padding="5,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="🚀 ĐÃ PHỤC VỤ" Style="{StaticResource ColumnHeaderStyle}" Foreground="White"/>
+                            <Border Background="#546E7A" CornerRadius="10" MinWidth="24" Height="20" Margin="5,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ServedItems.Count}" Foreground="White" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,0"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="8">
+                        <ItemsControl ItemsSource="{Binding ServedItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource ItemCardBorderStyle}" Opacity="0.7">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding DishName}" Foreground="#B0BEC5" FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Grid.Column="0" TextDecorations="Strikethrough"/>
+                                                <Border Background="#546E7A" CornerRadius="12" MinWidth="26" Height="24" Padding="5,0" Grid.Column="1" VerticalAlignment="Top" Margin="5,0,0,0">
+                                                    <TextBlock Text="{Binding Quantity, StringFormat='x{0}'}" Foreground="White" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <Border Grid.Row="1" Background="#37474F" CornerRadius="4" Padding="6,3" HorizontalAlignment="Left" Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding TableName}" Foreground="#ECEFF1" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                                                <TextBlock Text="🕒 Giao lúc: " Foreground="#90A4AE" FontSize="12"/>
+                                                <TextBlock Text="{Binding StatusUpdatedAt, StringFormat='{}{0:HH:mm}'}" Foreground="#90A4AE" FontSize="12" FontWeight="SemiBold"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Row="3" Style="{StaticResource NoteBoxStyle}">
+                                                <TextBlock Text="{Binding Note}" Foreground="#FF8A65" FontSize="12" FontWeight="SemiBold" FontStyle="Italic" TextWrapping="Wrap"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
