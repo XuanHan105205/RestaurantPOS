@@ -1,0 +1,227 @@
+<UserControl x:Class="RestaurantPOS.Views.Inventory.IngredientView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="900">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid Background="#F5F6FA">
+        <Grid.ColumnDefinitions>
+            <!-- Cột trái: Danh sách nguyên liệu -->
+            <ColumnDefinition Width="1.5*"/>
+            <!-- Cột phải: Form nhập liệu / chỉnh sửa -->
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 1. CỘT TRÁI: DANH SÁCH NGUYÊN LIỆU -->
+        <Border Grid.Column="0" Background="White" Margin="0,0,10,0" CornerRadius="8" Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="DANH SÁCH NGUYÊN LIỆU TRONG KHO" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            <TextBlock Text="Quản lý nguyên liệu chế biến món ăn và định mức tồn kho" FontSize="11" Foreground="#7F8C8D" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="🔄 Làm mới" Width="80" Height="28" Background="#7F8C8D" Foreground="White" FontWeight="Bold" Command="{Binding LoadIngredientsCommand}" VerticalAlignment="Center">
+                            <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                        </Button>
+                    </Grid>
+                    <Separator Margin="0,8,0,0"/>
+                </StackPanel>
+
+                <!-- DataGrid hiển thị danh sách nguyên liệu -->
+                <DataGrid Grid.Row="1" 
+                          ItemsSource="{Binding Ingredients}" 
+                          SelectedItem="{Binding SelectedIngredient}"
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True"
+                          Background="#FAFAFA" 
+                          BorderThickness="1"
+                          BorderBrush="#E0E0E0"
+                          RowHeight="32"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#EAEAEA">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#F0F2F5"/>
+                            <Setter Property="Foreground" Value="#374151"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="8,5"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mã NL" Binding="{Binding IngredientId}" Width="60">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Tên nguyên liệu" Binding="{Binding IngredientName}" Width="*"/>
+                        <DataGridTextColumn Header="Tồn kho" Binding="{Binding StockQuantity, StringFormat='{}{0:0.##}'}" Width="80">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="Padding" Value="0,0,5,0"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Đơn vị" Binding="{Binding Unit}" Width="70">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Định mức cảnh báo" Binding="{Binding MinStockAlert, StringFormat='{}{0:0.##}', TargetNullValue='-'}" Width="130">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="Padding" Value="0,0,5,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Header="Tình trạng" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding}">
+                                        <ContentControl.ContentTemplate>
+                                            <DataTemplate>
+                                                <Border x:Name="statusBorder" CornerRadius="4" Padding="6,2" HorizontalAlignment="Center">
+                                                    <TextBlock x:Name="statusText" FontSize="10" FontWeight="Bold"/>
+                                                </Border>
+                                                <DataTemplate.Triggers>
+                                                    <!-- Tồn kho bình thường -->
+                                                    <DataTrigger Binding="{Binding MinStockAlert}" Value="{x:Null}">
+                                                        <Setter TargetName="statusBorder" Property="Background" Value="#E8F8F5"/>
+                                                        <Setter TargetName="statusText" Property="Text" Value="An toàn"/>
+                                                        <Setter TargetName="statusText" Property="Foreground" Value="#27AE60"/>
+                                                    </DataTrigger>
+                                                    <!-- Cảnh báo tồn kho thấp -->
+                                                    <DataTrigger Binding="{Binding MinStockAlert}" Value="{x:Null}">
+                                                        <Setter TargetName="statusBorder" Property="Background" Value="#E8F8F5"/>
+                                                        <Setter TargetName="statusText" Property="Text" Value="An toàn"/>
+                                                        <Setter TargetName="statusText" Property="Foreground" Value="#27AE60"/>
+                                                    </DataTrigger>
+                                                </DataTemplate.Triggers>
+                                            </DataTemplate>
+                                        </ContentControl.ContentTemplate>
+                                    </ContentControl>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- 2. CỘT PHẢI: FORM NHẬP LIỆU -->
+        <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                    <TextBlock Text="THÔNG TIN NGUYÊN LIỆU" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                    <TextBlock Text="Thêm mới hoặc sửa thông tin nguyên liệu" FontSize="11" Foreground="#7F8C8D" Margin="0,2,0,0"/>
+                    <Separator Margin="0,8,0,0"/>
+                </StackPanel>
+
+                <!-- Input Fields -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,5">
+                        <!-- Tên nguyên liệu -->
+                        <TextBlock Text="Tên nguyên liệu *" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding IngredientName, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" FontSize="13" Margin="0,0,0,15"/>
+
+                        <!-- Đơn vị tính -->
+                        <TextBlock Text="Đơn vị tính (ví dụ: kg, lon, bó, chai) *" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding Unit, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" FontSize="13" Margin="0,0,0,15"/>
+
+                        <!-- Số lượng tồn kho -->
+                        <TextBlock Text="Số lượng tồn kho (Hệ thống tự động cập nhật khi nhập hàng)" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding StockQuantity, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" FontSize="13" IsEnabled="True" Margin="0,0,0,15"/>
+
+                        <!-- Cảnh báo tồn kho tối thiểu -->
+                        <TextBlock Text="Mức tồn tối thiểu để cảnh báo (Tùy chọn)" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding MinStockAlert, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" Height="35" VerticalContentAlignment="Center" Padding="8,0" FontSize="13" Margin="0,0,0,15"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Form Action Buttons -->
+                <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Nút Xóa (chỉ hiển thị khi đang sửa) -->
+                        <Button Grid.Column="0" Content="🗑️ Xóa" Height="38" Background="#E74C3C" Foreground="White" FontWeight="Bold" Margin="0,0,5,0" Command="{Binding DeleteIngredientCommand}" Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                        </Button>
+
+                        <!-- Nút Hủy / Tạo mới -->
+                        <Button Grid.Column="1" Content="❌ Hủy chọn" Width="85" Height="38" Background="#CED4DA" Foreground="#495057" FontWeight="Bold" Margin="0,0,5,0" Command="{Binding ClearFormCommand}" Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                        </Button>
+
+                        <!-- Nút Lưu -->
+                        <Button Grid.Column="2" Content="💾 LƯU THÔNG TIN" Height="38" Background="#3F51B5" Foreground="White" FontWeight="Bold" FontSize="13" Command="{Binding SaveIngredientCommand}">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+
+                    <!-- Status Display -->
+                    <Border CornerRadius="4" Margin="0,10,0,0" Padding="8,4" Visibility="{Binding StatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#F8F9FA"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding StatusColor}" Value="#2ECC71">
+                                        <Setter Property="Background" Value="#E8F8F5"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding StatusColor}" Value="#E74C3C">
+                                        <Setter Property="Background" Value="#FDEDEC"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding StatusMessage}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="12">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{Binding StatusColor}"/>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

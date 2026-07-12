@@ -1,0 +1,202 @@
+<UserControl x:Class="RestaurantPOS.Views.Inventory.StockReceiptView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="900">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid Background="#F5F6FA">
+        <Grid.ColumnDefinitions>
+            <!-- Cột trái: Lịch sử nhập kho -->
+            <ColumnDefinition Width="1.6*"/>
+            <!-- Cột phải: Form phiếu nhập hàng mới -->
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 1. CỘT TRÁI: LỊCH SỬ NHẬP KHO -->
+        <Border Grid.Column="0" Background="White" Margin="0,0,10,0" CornerRadius="8" Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="LỊCH SỬ PHIẾU NHẬP KHO" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            <TextBlock Text="Xem danh sách các đợt nhập nguyên liệu vào kho" FontSize="11" Foreground="#7F8C8D" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="🔄 Làm mới" Width="80" Height="28" Background="#7F8C8D" Foreground="White" FontWeight="Bold" Command="{Binding LoadReceiptsCommand}" VerticalAlignment="Center">
+                            <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                        </Button>
+                    </Grid>
+                    <Separator Margin="0,8,0,0"/>
+                </StackPanel>
+
+                <!-- DataGrid danh sách phiếu nhập kho -->
+                <DataGrid Grid.Row="1" 
+                          ItemsSource="{Binding Receipts}" 
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True"
+                          Background="#FAFAFA" 
+                          BorderThickness="1"
+                          BorderBrush="#E0E0E0"
+                          RowHeight="32"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#EAEAEA">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#F0F2F5"/>
+                            <Setter Property="Foreground" Value="#374151"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="8,5"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mã Phiếu" Binding="{Binding ReceiptId}" Width="75">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Nguyên liệu" Binding="{Binding IngredientName}" Width="*"/>
+                        <DataGridTextColumn Header="SL nhập" Binding="{Binding Quantity, StringFormat='{}{0:0.##}'}" Width="70">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="Padding" Value="0,0,5,0"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="ĐVT" Binding="{Binding Unit}" Width="50">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Đơn giá nhập" Binding="{Binding UnitCost, StringFormat='{}{0:N0}đ', TargetNullValue='-'}" Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="Padding" Value="0,0,5,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Thành tiền" Binding="{Binding TotalCost, StringFormat='{}{0:N0}đ', TargetNullValue='-'}" Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="Padding" Value="0,0,5,0"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Foreground" Value="#2980B9"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Nhà cung cấp" Binding="{Binding Supplier}" Width="110"/>
+                        <DataGridTextColumn Header="Ngày nhập" Binding="{Binding ReceivedAt, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="115">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Người nhập" Binding="{Binding ReceivedByEmployeeName}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- 2. CỘT PHẢI: FORM PHIẾU NHẬP MỚI -->
+        <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                    <TextBlock Text="TẠO PHIẾU NHẬP MỚI" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                    <TextBlock Text="Nhập thêm số lượng cho nguyên liệu hiện có" FontSize="11" Foreground="#7F8C8D" Margin="0,2,0,0"/>
+                    <Separator Margin="0,8,0,0"/>
+                </StackPanel>
+
+                <!-- Input fields -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,5">
+                        <!-- Chọn nguyên liệu -->
+                        <TextBlock Text="Chọn nguyên liệu *" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding Ingredients}" 
+                                  SelectedItem="{Binding SelectedIngredient}" 
+                                  DisplayMemberPath="IngredientName" 
+                                  Height="35" 
+                                  VerticalContentAlignment="Center" 
+                                  Margin="0,0,0,15"/>
+
+                        <!-- Số lượng nhập -->
+                        <TextBlock Text="Số lượng nhập *" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" FontSize="13" Margin="0,0,0,15"/>
+
+                        <!-- Đơn giá nhập -->
+                        <TextBlock Text="Đơn giá nhập (đ/Đơn vị) (Tùy chọn)" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding UnitCost, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" Height="35" VerticalContentAlignment="Center" Padding="8,0" FontSize="13" Margin="0,0,0,15"/>
+
+                        <!-- Nhà cung cấp -->
+                        <TextBlock Text="Nhà cung cấp (Tùy chọn)" Foreground="#34495E" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}" Height="35" VerticalContentAlignment="Center" Padding="8,0" FontSize="13" Margin="0,0,0,15"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Action Button -->
+                <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
+                    <Button Content="📥 NHẬP HÀNG VÀO KHO" Height="40" Background="#27AE60" Foreground="White" FontWeight="Bold" FontSize="13" Command="{Binding SaveReceiptCommand}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <!-- Status Display -->
+                    <Border CornerRadius="4" Margin="0,10,0,0" Padding="8,4" Visibility="{Binding StatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#F8F9FA"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding StatusColor}" Value="#2ECC71">
+                                        <Setter Property="Background" Value="#E8F8F5"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding StatusColor}" Value="#E74C3C">
+                                        <Setter Property="Background" Value="#FDEDEC"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding StatusMessage}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="12">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{Binding StatusColor}"/>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
