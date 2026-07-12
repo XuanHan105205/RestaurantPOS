@@ -88,6 +88,13 @@ namespace RestaurantPOS.ViewModels.Waiter
             set => SetProperty(ref _isOpenSessionAllowed, value);
         }
 
+        private bool _isReserved;
+        public bool IsReserved
+        {
+            get => _isReserved;
+            set => SetProperty(ref _isReserved, value);
+        }
+
         public ICommand LoadTablesCommand { get; }
         public ICommand SearchCustomerCommand { get; }
         public ICommand OpenSessionCommand { get; }
@@ -131,11 +138,13 @@ namespace RestaurantPOS.ViewModels.Waiter
                 IsSessionInfoVisible = false;
                 IsOpenSessionAllowed = false;
                 IsCleaningAllowed = false;
+                IsReserved = false;
                 return;
             }
 
             IsCleaningAllowed = SelectedTable.Status == "needs_cleaning";
             IsOpenSessionAllowed = SelectedTable.Status == "available";
+            IsReserved = SelectedTable.Status == "reserved";
 
             if (SelectedTable.Status == "occupied")
             {
@@ -194,7 +203,7 @@ namespace RestaurantPOS.ViewModels.Waiter
         {
             if (SelectedTable == null || SelectedTable.Status != "available") return;
 
-            int employeeId = AuthService.Instance.CurrentUser?.EmployeeId ?? 2; // Default to Trần Văn Hưng if not authenticated
+            int employeeId = AuthService.Instance.CurrentUser?.EmployeeId ?? 2; // Default to Waiter if not authenticated
 
             int? customerId = null;
             if (SelectedCustomer != null)

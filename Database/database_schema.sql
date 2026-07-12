@@ -165,10 +165,10 @@ GO
 
 -- Nhân viên mẫu
 INSERT INTO employees (full_name, username, password_hash, role, phone, is_active) VALUES
-(N'Nguyễn Văn Hàn', 'han_manager', '123456', 'manager', '0912345678', 1),
-(N'Trần Văn Hưng', 'hung_waiter', '123456', 'waiter', '0922345678', 1),
-(N'Lê Văn Khải', 'khai_kitchen', '123456', 'kitchen', '0932345678', 1),
-(N'Phạm Văn Đắc', 'dac_cashier', '123456', 'cashier', '0942345678', 1);
+(N'Manager', 'manager', '123456', 'manager', '0912345678', 1),
+(N'Waiter', 'waiter', '123456', 'waiter', '0922345678', 1),
+(N'Kitchen', 'kitchen', '123456', 'kitchen', '0932345678', 1),
+(N'Cashier', 'cashier', '123456', 'cashier', '0942345678', 1);
 
 -- Danh mục món ăn
 INSERT INTO categories (category_name) VALUES

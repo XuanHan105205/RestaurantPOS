@@ -222,7 +222,7 @@ namespace RestaurantPOS.ViewModels.Waiter
                 return;
             }
 
-            int employeeId = AuthService.Instance.CurrentUser?.EmployeeId ?? 2; // Default to Trần Văn Hưng if not authenticated
+            int employeeId = AuthService.Instance.CurrentUser?.EmployeeId ?? 2; // Default to Waiter if not authenticated
 
             var orderItems = Cart.Select(item => new OrderItem
             {
