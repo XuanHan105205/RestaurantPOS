@@ -61,39 +61,44 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding Status}" Value="available">
                                                     <Setter Property="Background" Value="#E6FFFA"/>
-                                                    <Setter Property="Child">
-                                                        <Setter.Value>
-                                                            <TextBlock Text="🟢 Trống" FontSize="11" FontWeight="Bold" Foreground="#1A7F64"/>
-                                                        </Setter.Value>
-                                                    </Setter>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding Status}" Value="occupied">
                                                     <Setter Property="Background" Value="#FFEFFF"/>
-                                                    <Setter Property="Child">
-                                                        <Setter.Value>
-                                                            <TextBlock Text="🔴 Đang có khách" FontSize="11" FontWeight="Bold" Foreground="#C53030"/>
-                                                        </Setter.Value>
-                                                    </Setter>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding Status}" Value="needs_cleaning">
                                                     <Setter Property="Background" Value="#FAF5FF"/>
-                                                    <Setter Property="Child">
-                                                        <Setter.Value>
-                                                            <TextBlock Text="🧹 Cần dọn dẹp" FontSize="11" FontWeight="Bold" Foreground="#6B46C1"/>
-                                                        </Setter.Value>
-                                                    </Setter>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding Status}" Value="reserved">
                                                     <Setter Property="Background" Value="#EBF8FF"/>
-                                                    <Setter Property="Child">
-                                                        <Setter.Value>
-                                                            <TextBlock Text="🔵 Đã đặt trước" FontSize="11" FontWeight="Bold" Foreground="#2B6CB0"/>
-                                                        </Setter.Value>
-                                                    </Setter>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
+                                    
+                                    <TextBlock FontSize="11" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="available">
+                                                        <Setter Property="Text" Value="🟢 Trống"/>
+                                                        <Setter Property="Foreground" Value="#1A7F64"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="occupied">
+                                                        <Setter Property="Text" Value="🔴 Đang có khách"/>
+                                                        <Setter Property="Foreground" Value="#C53030"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="needs_cleaning">
+                                                        <Setter Property="Text" Value="🧹 Cần dọn dẹp"/>
+                                                        <Setter Property="Foreground" Value="#6B46C1"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="reserved">
+                                                        <Setter Property="Text" Value="🔵 Đã đặt trước"/>
+                                                        <Setter Property="Foreground" Value="#2B6CB0"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </Border>
                             </Grid>
                         </Border>
@@ -301,7 +306,7 @@
                             </StackPanel>
 
                             <!-- 4. Trạng thái Đã đặt trước (reserved) -->
-                            <StackPanel Visibility="{Binding SelectedTable.Status, Converter={StaticResource BoolToVis}, ConverterParameter=reserved}">
+                            <StackPanel Visibility="{Binding IsReserved, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="BÀN ĐÃ ĐẶT TRƯỚC" FontSize="14" FontWeight="Bold" Foreground="#2B6CB0" Margin="0,0,0,10"/>
                                 <TextBlock Text="Bàn này đã được đặt trước từ trước. Khi khách đến, hãy chuyển đổi trạng thái bằng cách mở session ăn uống trực tiếp."
                                            TextWrapping="Wrap" FontSize="12" Foreground="#4A5568" Margin="0,0,0,20" LineHeight="18"/>
