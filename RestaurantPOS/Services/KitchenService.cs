@@ -29,10 +29,25 @@ namespace RestaurantPOS.Services
             var item = _orderItemRepository.GetById(orderItemId);
             if (item == null) return false;
 
+            string oldStatus = item.Status;
             item.Status = newStatus;
             item.StatusUpdatedAt = DateTime.Now;
 
-            return _orderItemRepository.Update(item);
+            bool success = _orderItemRepository.Update(item);
+            if (success)
+            {
+                // Trừ kho tự động khi trạng thái chuyển sang "ready" (nếu trước đó chưa trừ)
+                if (newStatus == "ready" && oldStatus != "ready" && oldStatus != "served")
+                {
+                    using (var context = new Data.RestaurantPOSDbContext())
+                    {
+                        var ingredientRepo = new IngredientRepository();
+                        ingredientRepo.DeductStockForDish(item.DishId, item.Quantity, context);
+                        context.SaveChanges();
+                    }
+                }
+            }
+            return success;
         }
     }
 }
