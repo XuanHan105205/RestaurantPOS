@@ -1,4 +1,4 @@
-using RestaurantPOS.MVVM;
+﻿using RestaurantPOS.MVVM;
 
 namespace RestaurantPOS.ViewModels.Inventory
 {

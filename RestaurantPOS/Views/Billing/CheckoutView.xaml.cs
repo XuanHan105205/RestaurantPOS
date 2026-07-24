@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using RestaurantPOS.Models;
 using RestaurantPOS.ViewModels.Billing;

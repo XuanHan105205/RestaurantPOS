@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using RestaurantPOS.MVVM;
 using RestaurantPOS.Models;

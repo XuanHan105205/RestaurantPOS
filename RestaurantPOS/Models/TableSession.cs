@@ -1,4 +1,4 @@
-namespace RestaurantPOS.Models
+﻿namespace RestaurantPOS.Models
 {
     public class TableSession
     {
