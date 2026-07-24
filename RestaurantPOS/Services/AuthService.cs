@@ -1,36 +1,71 @@
+using System;
 using RestaurantPOS.Models;
-using RestaurantPOS.Repositories; // <-- Thêm dòng này
+using RestaurantPOS.Repositories;
 
 namespace RestaurantPOS.Services
 {
     public class AuthService : IAuthService
     {
-        private static AuthService _instance;
+        private static AuthService? _instance;
         public static AuthService Instance => _instance ??= new AuthService();
 
-        public Employee CurrentUser { get; private set; }
+        public Employee? CurrentUser { get; private set; }
 
-        private readonly IEmployeeRepository _employeeRepository; // <-- Khai báo repo
+        private readonly IEmployeeRepository _employeeRepository;
 
-        // --- Cập nhật Constructor để khởi tạo repository ---
-        private AuthService()
+        public AuthService()
         {
             _employeeRepository = new EmployeeRepository();
         }
 
-        // --- COPY VÀ THAY THẾ HÀM Login CŨ BẰNG ĐOẠN DƯỚI ĐÂY ---
+        public AuthService(IEmployeeRepository employeeRepository)
+        {
+            _employeeRepository = employeeRepository;
+        }
+
         public bool Login(string username, string password)
         {
-            // 1. Lấy thông tin nhân viên theo Username dưới Database
-            var employee = _employeeRepository.GetByUsername(username);
+            return Login(username, password, out _);
+        }
 
-            // 2. So sánh mật khẩu và trạng thái hoạt động
-            if (employee != null && employee.IsActive && employee.PasswordHash == password)
+        public bool Login(string username, string password, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            CurrentUser = null;
+
+            if (string.IsNullOrWhiteSpace(username))
             {
-                CurrentUser = employee;
-                return true;
+                errorMessage = "Tên đăng nhập không được để trống.";
+                return false;
             }
-            return false;
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                errorMessage = "Mật khẩu không được để trống.";
+                return false;
+            }
+
+            var employee = _employeeRepository.GetByUsername(username.Trim());
+            if (employee == null)
+            {
+                errorMessage = "Tài khoản không tồn tại trên hệ thống.";
+                return false;
+            }
+
+            if (!employee.IsActive)
+            {
+                errorMessage = "Tài khoản của bạn đã bị khóa hoặc ngừng hoạt động.";
+                return false;
+            }
+
+            if (!PasswordHasher.VerifyPassword(password, employee.PasswordHash))
+            {
+                errorMessage = "Mật khẩu không chính xác.";
+                return false;
+            }
+
+            CurrentUser = employee;
+            return true;
         }
 
         public void Logout()
