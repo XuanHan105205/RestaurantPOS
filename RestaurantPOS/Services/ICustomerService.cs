@@ -6,9 +6,11 @@ namespace RestaurantPOS.Services
     public interface ICustomerService
     {
         List<Customer> GetAllCustomers();
-        Customer GetCustomerByPhone(string phone);
+        Customer? GetCustomerByPhone(string phone);
         bool AddCustomer(Customer customer);
         bool UpdateCustomer(Customer customer);
         bool DeleteCustomer(int id);
+        double GetDiscountRateByCustomer(Customer? customer);
+        bool AddLoyaltyPoints(int customerId, int pointsEarned);
     }
 }
