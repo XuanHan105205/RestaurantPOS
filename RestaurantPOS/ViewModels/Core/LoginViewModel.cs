@@ -1,4 +1,4 @@
-using RestaurantPOS.MVVM;
+﻿using RestaurantPOS.MVVM;
 using RestaurantPOS.Services;
 using RestaurantPOS.Views.Core;
 using System.Windows;

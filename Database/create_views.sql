@@ -1,4 +1,4 @@
-USE RestaurantPOS;
+﻿USE RestaurantPOS;
 GO
 
 -- 1. vw_DailySalesSummary

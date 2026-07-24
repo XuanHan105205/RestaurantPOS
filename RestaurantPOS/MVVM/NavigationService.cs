@@ -1,4 +1,4 @@
-namespace RestaurantPOS.MVVM
+﻿namespace RestaurantPOS.MVVM
 {
     public class NavigationService : ViewModelBase
     {
