@@ -9,6 +9,7 @@ namespace RestaurantPOS.ViewModels.Core
     public class CustomerManagementViewModel : ViewModelBase
     {
         private readonly ICustomerService _customerService;
+        private readonly IDialogService _dialogService;
 
         // Danh sách khách hàng hiển thị trên DataGrid
         private ObservableCollection<Customer> _customers;
@@ -85,9 +86,12 @@ namespace RestaurantPOS.ViewModels.Core
         public ICommand DeleteCustomerCommand { get; }
         public ICommand ClearFormCommand { get; }
 
-        public CustomerManagementViewModel()
+        public CustomerManagementViewModel(
+            ICustomerService customerService,
+            IDialogService dialogService)
         {
-            _customerService = new CustomerService();
+            _customerService = customerService;
+            _dialogService = dialogService;
             Customers = new ObservableCollection<Customer>();
 
             // Khởi tạo các Command
@@ -189,13 +193,9 @@ namespace RestaurantPOS.ViewModels.Core
         {
             if (SelectedCustomer == null) return;
 
-            var result = System.Windows.MessageBox.Show(
-                $"Bạn có chắc chắn muốn xóa khách hàng '{SelectedCustomer.FullName}' không?", 
-                "Xác nhận xóa", 
-                System.Windows.MessageBoxButton.YesNo, 
-                System.Windows.MessageBoxImage.Warning);
-
-            if (result == System.Windows.MessageBoxResult.Yes)
+            if (_dialogService.Confirm(
+                "Xác nhận xóa",
+                $"Bạn có chắc chắn muốn xóa khách hàng '{SelectedCustomer.FullName}' không?"))
             {
                 bool success = _customerService.DeleteCustomer(SelectedCustomer.CustomerId);
                 if (success)
