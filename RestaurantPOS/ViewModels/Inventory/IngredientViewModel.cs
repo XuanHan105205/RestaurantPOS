@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using RestaurantPOS.Models;
 using RestaurantPOS.MVVM;
@@ -13,6 +12,7 @@ namespace RestaurantPOS.ViewModels.Inventory
     public class IngredientViewModel : ViewModelBase
     {
         private readonly IIngredientService _ingredientService;
+        private readonly IDialogService _dialogService;
 
         private ObservableCollection<Ingredient> _ingredients;
         public ObservableCollection<Ingredient> Ingredients
@@ -84,8 +84,15 @@ namespace RestaurantPOS.ViewModels.Inventory
         public ICommand ClearFormCommand { get; }
 
         public IngredientViewModel()
+            : this(new IngredientService(), new WpfDialogService())
         {
-            _ingredientService = new IngredientService();
+        }
+
+        public IngredientViewModel(IIngredientService ingredientService, IDialogService dialogService)
+        {
+            _ingredientService = ingredientService;
+            _dialogService = dialogService;
+
             Ingredients = new ObservableCollection<Ingredient>();
 
             LoadIngredientsCommand = new RelayCommand(LoadIngredients);
@@ -202,10 +209,11 @@ namespace RestaurantPOS.ViewModels.Inventory
         {
             if (SelectedIngredient == null) return;
 
-            var result = MessageBox.Show($"Bạn có chắc chắn muốn xóa nguyên liệu '{SelectedIngredient.IngredientName}' không?", 
-                "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            bool confirmed = _dialogService.Confirm(
+                "Xác nhận xóa",
+                $"Bạn có chắc chắn muốn xóa nguyên liệu '{SelectedIngredient.IngredientName}' không?");
 
-            if (result == MessageBoxResult.Yes)
+            if (confirmed)
             {
                 try
                 {

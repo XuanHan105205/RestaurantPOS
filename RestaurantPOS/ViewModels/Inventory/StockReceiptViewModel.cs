@@ -13,6 +13,7 @@ namespace RestaurantPOS.ViewModels.Inventory
     {
         private readonly IStockService _stockService;
         private readonly IIngredientService _ingredientService;
+        private readonly IEmployeeService _employeeService;
 
         private ObservableCollection<StockReceiptDto> _receipts;
         public ObservableCollection<StockReceiptDto> Receipts
@@ -75,9 +76,19 @@ namespace RestaurantPOS.ViewModels.Inventory
         public ICommand ClearFormCommand { get; }
 
         public StockReceiptViewModel()
+            : this(new StockService(), new IngredientService(), new EmployeeService())
         {
-            _stockService = new StockService();
-            _ingredientService = new IngredientService();
+        }
+
+        public StockReceiptViewModel(
+            IStockService stockService,
+            IIngredientService ingredientService,
+            IEmployeeService employeeService)
+        {
+            _stockService = stockService;
+            _ingredientService = ingredientService;
+            _employeeService = employeeService;
+
             Receipts = new ObservableCollection<StockReceiptDto>();
 
             LoadReceiptsCommand = new RelayCommand(LoadData);
@@ -97,26 +108,21 @@ namespace RestaurantPOS.ViewModels.Inventory
                 // Load Receipts and map to DTOs
                 var rawReceipts = _stockService.GetAllReceipts();
                 var dbIngredients = _ingredientService.GetAllIngredients().ToDictionary(i => i.IngredientId);
+                var dbEmployees = _employeeService.GetAllEmployees().ToDictionary(e => e.EmployeeId);
 
-                using (var context = new Data.RestaurantPOSDbContext())
+                var mapped = rawReceipts.Select(r => new StockReceiptDto
                 {
-                    var dbEmployees = context.Employees.ToDictionary(e => e.EmployeeId);
+                    ReceiptId = r.ReceiptId,
+                    IngredientName = dbIngredients.TryGetValue(r.IngredientId, out var ing) ? ing.IngredientName : "Không xác định",
+                    Unit = ing?.Unit ?? "",
+                    Quantity = r.Quantity,
+                    UnitCost = r.UnitCost,
+                    ReceivedAt = r.ReceivedAt,
+                    ReceivedByEmployeeName = r.ReceivedByEmployeeId.HasValue && dbEmployees.TryGetValue(r.ReceivedByEmployeeId.Value, out var emp) ? emp.FullName : "Hệ thống",
+                    Supplier = r.Supplier ?? "-"
+                }).ToList();
 
-                    var mapped = rawReceipts.Select(r => new StockReceiptDto
-                    {
-                        ReceiptId = r.ReceiptId,
-                        IngredientName = dbIngredients.TryGetValue(r.IngredientId, out var ing) ? ing.IngredientName : "Không xác định",
-                        Unit = ing?.Unit ?? "",
-                        Quantity = r.Quantity,
-                        UnitCost = r.UnitCost,
-                        ReceivedAt = r.ReceivedAt,
-                        ReceivedByEmployeeName = r.ReceivedByEmployeeId.HasValue && dbEmployees.TryGetValue(r.ReceivedByEmployeeId.Value, out var emp) ? emp.FullName : "Hệ thống",
-                        Supplier = r.Supplier ?? "-"
-                    }).ToList();
-
-                    Receipts = new ObservableCollection<StockReceiptDto>(mapped);
-                }
-
+                Receipts = new ObservableCollection<StockReceiptDto>(mapped);
                 ShowStatus("Đã tải danh sách phiếu nhập kho.", true);
             }
             catch (Exception ex)

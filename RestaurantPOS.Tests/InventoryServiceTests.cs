@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RestaurantPOS.Models;
 using RestaurantPOS.Repositories;
 using RestaurantPOS.Services;
+using RestaurantPOS.ViewModels.Inventory;
 using Xunit;
 
 namespace RestaurantPOS.Tests
@@ -108,6 +110,51 @@ namespace RestaurantPOS.Tests
         {
             return _data.RemoveAll(r => r.DishId == dishId && r.IngredientId == ingredientId) > 0;
         }
+    }
+
+    public class FakeEmployeeRepository : IEmployeeRepository
+    {
+        private readonly List<Employee> _data = new List<Employee>
+        {
+            new Employee { EmployeeId = 1, FullName = "Nguyễn Văn A", Username = "empA", Role = "admin", IsActive = true, PasswordHash = "123" }
+        };
+
+        public List<Employee> GetAll() => new List<Employee>(_data);
+        public Employee? GetById(int id) => _data.FirstOrDefault(e => e.EmployeeId == id);
+        public Employee? GetByUsername(string username) => _data.FirstOrDefault(e => e.Username == username);
+        public bool Add(Employee entity) { _data.Add(entity); return true; }
+        public bool Update(Employee entity) => true;
+        public bool Delete(int id) => true;
+    }
+
+    public class FakeDishRepository : IDishRepository
+    {
+        private readonly List<Dish> _data = new List<Dish>
+        {
+            new Dish { DishId = 1, DishName = "Phở Bò", Price = 50000, AvailabilityStatus = "active" },
+            new Dish { DishId = 2, DishName = "Bún Chả", Price = 45000, AvailabilityStatus = "active" }
+        };
+
+        public List<Dish> GetAll() => new List<Dish>(_data);
+        public Dish? GetById(int id) => _data.FirstOrDefault(d => d.DishId == id);
+        public bool Add(Dish entity) { _data.Add(entity); return true; }
+        public bool Update(Dish entity) => true;
+        public bool Delete(int id) => true;
+        public List<Dish> GetActiveDishes() => _data.Where(d => d.AvailabilityStatus == "active").ToList();
+    }
+
+    public class FakeDialogService : IDialogService
+    {
+        public bool ConfirmResult { get; set; } = true;
+        public bool WasConfirmCalled { get; private set; }
+
+        public bool Confirm(string title, string message)
+        {
+            WasConfirmCalled = true;
+            return ConfirmResult;
+        }
+
+        public void ShowMessage(string title, string message) { }
     }
 
     public class InventoryServiceTests
@@ -259,6 +306,80 @@ namespace RestaurantPOS.Tests
 
             Assert.True(result);
             Assert.Empty(service.GetRecipesByDishId(1));
+        }
+
+        [Theory]
+        [InlineData(10.0, -1.0, false)] // minAlert = -1 biểu thị không đặt ngưỡng (null)
+        [InlineData(10.0, 5.0, false)]  // tồn kho 10, ngưỡng 5 -> false
+        [InlineData(5.0, 5.0, true)]    // tồn kho 5, ngưỡng 5 -> true
+        [InlineData(3.0, 5.0, true)]    // tồn kho 3, ngưỡng 5 -> true
+        public void Ingredient_IsLowStock_CalculatesCorrectly(double stockQtyVal, double minAlertVal, bool expectedIsLowStock)
+        {
+            decimal stockQty = (decimal)stockQtyVal;
+            decimal? minAlert = minAlertVal < 0 ? null : (decimal?)minAlertVal;
+            var ingredient = new Ingredient
+            {
+                IngredientName = "Test Item",
+                Unit = "kg",
+                StockQuantity = stockQty,
+                MinStockAlert = minAlert
+            };
+
+            Assert.Equal(expectedIsLowStock, ingredient.IsLowStock);
+        }
+
+        [Fact]
+        public void IngredientViewModel_Delete_UsesDialogService()
+        {
+            var ingRepo = new FakeIngredientRepository();
+            ingRepo.Add(new Ingredient { IngredientId = 1, IngredientName = "Muối", Unit = "kg", StockQuantity = 10 });
+            var ingService = new IngredientService(ingRepo);
+            var dialogService = new FakeDialogService { ConfirmResult = true };
+
+            var vm = new IngredientViewModel(ingService, dialogService);
+            vm.SelectedIngredient = vm.Ingredients.First();
+
+            vm.DeleteIngredientCommand.Execute(null);
+
+            Assert.True(dialogService.WasConfirmCalled);
+            Assert.Empty(vm.Ingredients);
+        }
+
+        [Fact]
+        public void RecipeMappingViewModel_LoadDishes_DoesNotUseDbContextDirectly()
+        {
+            var recipeRepo = new FakeRecipeRepository();
+            var recipeService = new RecipeService(recipeRepo);
+            var ingRepo = new FakeIngredientRepository();
+            var ingService = new IngredientService(ingRepo);
+            var dishRepo = new FakeDishRepository();
+            var dishService = new DishService(dishRepo);
+            var dialogService = new FakeDialogService();
+
+            var vm = new RecipeMappingViewModel(recipeService, ingService, dishService, dialogService);
+
+            Assert.NotNull(vm.Dishes);
+            Assert.Equal(2, vm.Dishes.Count);
+        }
+
+        [Fact]
+        public void StockReceiptViewModel_LoadData_LoadsEmployeesViaService()
+        {
+            var stockRepo = new FakeStockReceiptRepository();
+            stockRepo.Add(new StockReceipt { ReceiptId = 1, IngredientId = 1, Quantity = 10, ReceivedByEmployeeId = 1 });
+            var stockService = new StockService(stockRepo);
+
+            var ingRepo = new FakeIngredientRepository();
+            ingRepo.Add(new Ingredient { IngredientId = 1, IngredientName = "Gạo", Unit = "kg", StockQuantity = 50 });
+            var ingService = new IngredientService(ingRepo);
+
+            var empRepo = new FakeEmployeeRepository();
+            var empService = new EmployeeService(empRepo);
+
+            var vm = new StockReceiptViewModel(stockService, ingService, empService);
+
+            Assert.Single(vm.Receipts);
+            Assert.Equal("Nguyễn Văn A", vm.Receipts[0].ReceivedByEmployeeName);
         }
     }
 }

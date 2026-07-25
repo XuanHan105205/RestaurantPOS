@@ -7,5 +7,7 @@ namespace RestaurantPOS.Models
         public string Unit { get; set; }
         public decimal StockQuantity { get; set; }
         public decimal? MinStockAlert { get; set; }
+
+        public bool IsLowStock => MinStockAlert.HasValue && StockQuantity <= MinStockAlert.Value;
     }
 }

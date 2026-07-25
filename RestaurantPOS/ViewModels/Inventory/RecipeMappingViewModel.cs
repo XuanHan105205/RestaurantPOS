@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using RestaurantPOS.Models;
 using RestaurantPOS.MVVM;
@@ -14,6 +13,8 @@ namespace RestaurantPOS.ViewModels.Inventory
     {
         private readonly IRecipeService _recipeService;
         private readonly IIngredientService _ingredientService;
+        private readonly IDishService _dishService;
+        private readonly IDialogService _dialogService;
 
         private List<Dish> _dishes;
         public List<Dish> Dishes
@@ -99,9 +100,21 @@ namespace RestaurantPOS.ViewModels.Inventory
         public ICommand ClearFormCommand { get; }
 
         public RecipeMappingViewModel()
+            : this(new RecipeService(), new IngredientService(), new DishService(), new WpfDialogService())
         {
-            _recipeService = new RecipeService();
-            _ingredientService = new IngredientService();
+        }
+
+        public RecipeMappingViewModel(
+            IRecipeService recipeService,
+            IIngredientService ingredientService,
+            IDishService dishService,
+            IDialogService dialogService)
+        {
+            _recipeService = recipeService;
+            _ingredientService = ingredientService;
+            _dishService = dishService;
+            _dialogService = dialogService;
+
             RecipeItems = new ObservableCollection<RecipeItemDto>();
 
             LoadDishesCommand = new RelayCommand(LoadDishes);
@@ -116,10 +129,7 @@ namespace RestaurantPOS.ViewModels.Inventory
         {
             try
             {
-                using (var context = new Data.RestaurantPOSDbContext())
-                {
-                    Dishes = context.Dishes.Where(d => d.AvailabilityStatus == "active").OrderBy(d => d.DishName).ToList();
-                }
+                Dishes = _dishService.GetActiveDishes();
                 Ingredients = _ingredientService.GetAllIngredients().OrderBy(i => i.IngredientName).ToList();
                 ShowStatus("Đã tải danh sách thực đơn.", true);
             }
@@ -220,10 +230,11 @@ namespace RestaurantPOS.ViewModels.Inventory
         {
             if (SelectedDish == null || SelectedRecipeItem == null) return;
 
-            var result = MessageBox.Show($"Bạn có chắc chắn muốn xóa định lượng nguyên liệu '{SelectedRecipeItem.IngredientName}' ra khỏi món '{SelectedDish.DishName}' không?", 
-                "Xác nhận xóa định lượng", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            bool confirmed = _dialogService.Confirm(
+                "Xác nhận xóa định lượng",
+                $"Bạn có chắc chắn muốn xóa định lượng nguyên liệu '{SelectedRecipeItem.IngredientName}' ra khỏi món '{SelectedDish.DishName}' không?");
 
-            if (result == MessageBoxResult.Yes)
+            if (confirmed)
             {
                 try
                 {
