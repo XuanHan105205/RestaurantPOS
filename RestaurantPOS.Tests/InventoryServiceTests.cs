@@ -73,6 +73,43 @@ namespace RestaurantPOS.Tests
         }
     }
 
+    public class FakeRecipeRepository : IRecipeRepository
+    {
+        private readonly List<Recipe> _data = new List<Recipe>();
+
+        public List<Recipe> GetAll() => new List<Recipe>(_data);
+
+        public Recipe? GetById(int id) => null;
+
+        public Recipe? GetRecipe(int dishId, int ingredientId) => _data.Find(r => r.DishId == dishId && r.IngredientId == ingredientId);
+
+        public List<Recipe> GetRecipesByDishId(int dishId) => _data.FindAll(r => r.DishId == dishId);
+
+        public bool Add(Recipe entity)
+        {
+            _data.Add(entity);
+            return true;
+        }
+
+        public bool Update(Recipe entity)
+        {
+            var existing = GetRecipe(entity.DishId, entity.IngredientId);
+            if (existing != null)
+            {
+                existing.QuantityPerServing = entity.QuantityPerServing;
+                return true;
+            }
+            return false;
+        }
+
+        public bool Delete(int id) => true;
+
+        public bool DeleteRecipe(int dishId, int ingredientId)
+        {
+            return _data.RemoveAll(r => r.DishId == dishId && r.IngredientId == ingredientId) > 0;
+        }
+    }
+
     public class InventoryServiceTests
     {
         [Fact]
@@ -174,6 +211,54 @@ namespace RestaurantPOS.Tests
 
             Assert.True(result);
             Assert.Single(service.GetAllReceipts());
+        }
+
+        [Fact]
+        public void AddOrUpdateRecipe_ValidRecipe_ReturnsTrue()
+        {
+            var repo = new FakeRecipeRepository();
+            var service = new RecipeService(repo);
+            var recipe = new Recipe
+            {
+                DishId = 1,
+                IngredientId = 2,
+                QuantityPerServing = 0.5m
+            };
+
+            bool result = service.AddOrUpdateRecipe(recipe);
+
+            Assert.True(result);
+            Assert.Single(service.GetRecipesByDishId(1));
+        }
+
+        [Fact]
+        public void AddOrUpdateRecipe_InvalidQuantity_ReturnsFalse()
+        {
+            var repo = new FakeRecipeRepository();
+            var service = new RecipeService(repo);
+            var recipe = new Recipe
+            {
+                DishId = 1,
+                IngredientId = 2,
+                QuantityPerServing = 0
+            };
+
+            bool result = service.AddOrUpdateRecipe(recipe);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void DeleteRecipe_ValidIds_ReturnsTrue()
+        {
+            var repo = new FakeRecipeRepository();
+            var service = new RecipeService(repo);
+            service.AddOrUpdateRecipe(new Recipe { DishId = 1, IngredientId = 2, QuantityPerServing = 1.0m });
+
+            bool result = service.DeleteRecipe(1, 2);
+
+            Assert.True(result);
+            Assert.Empty(service.GetRecipesByDishId(1));
         }
     }
 }
