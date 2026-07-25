@@ -46,7 +46,6 @@ namespace RestaurantPOS.ViewModels.Waiter
     public class OrderViewModel : ViewModelBase
     {
         private readonly IOrderService _orderService;
-        private readonly IAIService _aiService;
 
         public RestaurantTable SelectedTable { get; }
         public DiningSession ActiveSession { get; }
@@ -100,13 +99,6 @@ namespace RestaurantPOS.ViewModels.Waiter
             set => SetProperty(ref _cart, value);
         }
 
-        private ObservableCollection<Dish> _recommendedDishes = new();
-        public ObservableCollection<Dish> RecommendedDishes
-        {
-            get => _recommendedDishes;
-            set => SetProperty(ref _recommendedDishes, value);
-        }
-
         public decimal CartTotal => Cart.Sum(item => item.Subtotal);
 
         public bool IsCartEmpty => Cart.Count == 0;
@@ -125,14 +117,12 @@ namespace RestaurantPOS.ViewModels.Waiter
             SelectedTable = table;
             ActiveSession = session;
             _orderService = new OrderService();
-            _aiService = new AIService();
             _cart = new ObservableCollection<CartItem>();
             _cart.CollectionChanged += (s, e) =>
             {
                 OnPropertyChanged(nameof(CartTotal));
                 OnPropertyChanged(nameof(IsCartEmpty));
                 OnPropertyChanged(nameof(IsCartNotEmpty));
-                UpdateAIRecommendations();
             };
 
             SelectCategoryCommand = new RelayCommand<Category>(category => SelectedCategory = category);
@@ -144,7 +134,6 @@ namespace RestaurantPOS.ViewModels.Waiter
             CancelOrderCommand = new RelayCommand(CancelOrder);
 
             LoadMenu();
-            UpdateAIRecommendations();
         }
 
         private void LoadMenu()
@@ -255,13 +244,6 @@ namespace RestaurantPOS.ViewModels.Waiter
             {
                 System.Windows.MessageBox.Show("Có lỗi xảy ra khi gọi món. Vui lòng thử lại.");
             }
-        }
-
-        private void UpdateAIRecommendations()
-        {
-            var currentDishIds = Cart.Select(item => item.Dish.DishId).ToList();
-            var recommendations = _aiService.GetRecommendedDishes(currentDishIds);
-            RecommendedDishes = new ObservableCollection<Dish>(recommendations);
         }
 
         private void CancelOrder()
