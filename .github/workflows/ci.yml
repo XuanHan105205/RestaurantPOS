@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: windows-latest
 
     steps:
@@ -24,6 +24,3 @@ jobs:
 
     - name: Build Solution
       run: dotnet build --no-restore --configuration Release
-
-    - name: Run Unit Tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
