@@ -6,8 +6,11 @@ namespace RestaurantPOS.Services
     {
         public bool Confirm(string title, string message)
         {
-            var result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            return result == MessageBoxResult.Yes;
+            return MessageBox.Show(
+                message,
+                title,
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning) == MessageBoxResult.Yes;
         }
 
         public void ShowMessage(string title, string message)
