@@ -14,8 +14,9 @@ public partial class App : Application
 
         IAuthService authService = AuthService.Instance;
         IDialogService dialogService = new WpfDialogService();
+        IInventoryViewModelFactory inventoryFactory = new InventoryViewModelFactory(dialogService);
         IWindowNavigationService windowNavigation =
-            new WpfWindowNavigationService(authService, dialogService);
+            new WpfWindowNavigationService(authService, dialogService, inventoryFactory);
 
         windowNavigation.OpenLogin();
     }

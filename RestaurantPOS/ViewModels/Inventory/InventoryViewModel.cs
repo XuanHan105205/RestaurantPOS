@@ -8,11 +8,14 @@ namespace RestaurantPOS.ViewModels.Inventory
         public StockReceiptViewModel StockReceiptVM { get; }
         public RecipeMappingViewModel RecipeMappingVM { get; }
 
-        public InventoryViewModel()
+        public InventoryViewModel(
+            IngredientViewModel ingredientVM,
+            StockReceiptViewModel stockReceiptVM,
+            RecipeMappingViewModel recipeMappingVM)
         {
-            IngredientVM = new IngredientViewModel();
-            StockReceiptVM = new StockReceiptViewModel();
-            RecipeMappingVM = new RecipeMappingViewModel();
+            IngredientVM = ingredientVM;
+            StockReceiptVM = stockReceiptVM;
+            RecipeMappingVM = recipeMappingVM;
         }
     }
 }

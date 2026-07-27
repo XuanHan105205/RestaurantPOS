@@ -13,22 +13,25 @@ namespace RestaurantPOS.ViewModels.Core
         private readonly IAuthService _authService;
         private readonly IWindowNavigationService _windowNavigation;
         private readonly IDialogService _dialogService;
+        private readonly IInventoryViewModelFactory _inventoryFactory;
 
         public MainShellViewModel(
             IAuthService authService,
             IWindowNavigationService windowNavigation,
-            IDialogService dialogService)
+            IDialogService dialogService,
+            IInventoryViewModelFactory inventoryFactory)
         {
             _authService = authService;
             _windowNavigation = windowNavigation;
             _dialogService = dialogService;
+            _inventoryFactory = inventoryFactory;
 
             NavigateWaiterCommand = new RelayCommand(
                 () => Navigation.CurrentViewModel = new TableViewModel());
             NavigateKitchenCommand = new RelayCommand(
                 () => Navigation.CurrentViewModel = new KitchenViewModel());
             NavigateInventoryCommand = new RelayCommand(
-                () => Navigation.CurrentViewModel = new InventoryViewModel());
+                () => Navigation.CurrentViewModel = _inventoryFactory.Create());
             NavigateBillingCommand = new RelayCommand(
                 () => Navigation.CurrentViewModel = new BillingViewModel());
             NavigateCustomerCommand = new RelayCommand(
@@ -79,7 +82,7 @@ namespace RestaurantPOS.ViewModels.Core
                     Navigation.CurrentViewModel = new KitchenViewModel();
                     break;
                 case "inventory":
-                    Navigation.CurrentViewModel = new InventoryViewModel();
+                    Navigation.CurrentViewModel = _inventoryFactory.Create();
                     break;
                 case "cashier":
                     Navigation.CurrentViewModel = new BillingViewModel();

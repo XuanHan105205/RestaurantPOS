@@ -109,16 +109,16 @@
                                                 </Border>
                                                 <DataTemplate.Triggers>
                                                     <!-- Tồn kho bình thường -->
-                                                    <DataTrigger Binding="{Binding MinStockAlert}" Value="{x:Null}">
+                                                    <DataTrigger Binding="{Binding IsLowStock}" Value="False">
                                                         <Setter TargetName="statusBorder" Property="Background" Value="#E8F8F5"/>
                                                         <Setter TargetName="statusText" Property="Text" Value="An toàn"/>
                                                         <Setter TargetName="statusText" Property="Foreground" Value="#27AE60"/>
                                                     </DataTrigger>
                                                     <!-- Cảnh báo tồn kho thấp -->
-                                                    <DataTrigger Binding="{Binding MinStockAlert}" Value="{x:Null}">
-                                                        <Setter TargetName="statusBorder" Property="Background" Value="#E8F8F5"/>
-                                                        <Setter TargetName="statusText" Property="Text" Value="An toàn"/>
-                                                        <Setter TargetName="statusText" Property="Foreground" Value="#27AE60"/>
+                                                    <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                                        <Setter TargetName="statusBorder" Property="Background" Value="#FDEDEC"/>
+                                                        <Setter TargetName="statusText" Property="Text" Value="Tồn thấp"/>
+                                                        <Setter TargetName="statusText" Property="Foreground" Value="#E74C3C"/>
                                                     </DataTrigger>
                                                 </DataTemplate.Triggers>
                                             </DataTemplate>
