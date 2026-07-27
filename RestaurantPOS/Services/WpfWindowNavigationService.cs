@@ -8,13 +8,16 @@ namespace RestaurantPOS.Services
     {
         private readonly IAuthService _authService;
         private readonly IDialogService _dialogService;
+        private readonly IInventoryViewModelFactory _inventoryFactory;
 
         public WpfWindowNavigationService(
             IAuthService authService,
-            IDialogService dialogService)
+            IDialogService dialogService,
+            IInventoryViewModelFactory inventoryFactory)
         {
             _authService = authService;
             _dialogService = dialogService;
+            _inventoryFactory = inventoryFactory;
         }
 
         public void OpenLogin()
@@ -28,7 +31,8 @@ namespace RestaurantPOS.Services
             var viewModel = new MainShellViewModel(
                 _authService,
                 this,
-                _dialogService);
+                _dialogService,
+                _inventoryFactory);
             SwitchMainWindow(new MainShellWindow(viewModel));
         }
 

@@ -403,6 +403,21 @@ namespace RestaurantPOS.Tests
             Assert.Same(stockVM, inventoryVM.StockReceiptVM);
             Assert.Same(recipeVM, inventoryVM.RecipeMappingVM);
         }
+
+        [Fact]
+        public void InventoryViewModelFactory_Create_ReturnsPopulatedInventoryViewModel()
+        {
+            var dialogService = new FakeDialogService();
+            var factory = new InventoryViewModelFactory(dialogService);
+
+            var resultVM = factory.Create();
+
+            Assert.NotNull(resultVM);
+            Assert.NotNull(resultVM.IngredientVM);
+            Assert.NotNull(resultVM.StockReceiptVM);
+            Assert.NotNull(resultVM.RecipeMappingVM);
+        }
     }
 }
+
 
