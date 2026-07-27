@@ -75,11 +75,6 @@ namespace RestaurantPOS.ViewModels.Inventory
         public ICommand SaveReceiptCommand { get; }
         public ICommand ClearFormCommand { get; }
 
-        public StockReceiptViewModel()
-            : this(new StockService(), new IngredientService(), new EmployeeService())
-        {
-        }
-
         public StockReceiptViewModel(
             IStockService stockService,
             IIngredientService ingredientService,

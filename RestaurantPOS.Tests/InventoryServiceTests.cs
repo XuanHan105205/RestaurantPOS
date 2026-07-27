@@ -381,5 +381,28 @@ namespace RestaurantPOS.Tests
             Assert.Single(vm.Receipts);
             Assert.Equal("Nguyễn Văn A", vm.Receipts[0].ReceivedByEmployeeName);
         }
+
+        [Fact]
+        public void InventoryViewModel_Constructor_AssignsSubViewModelsCorrectly()
+        {
+            var ingService = new IngredientService(new FakeIngredientRepository());
+            var dialogService = new FakeDialogService();
+            var ingVM = new IngredientViewModel(ingService, dialogService);
+
+            var stockService = new StockService(new FakeStockReceiptRepository());
+            var empService = new EmployeeService(new FakeEmployeeRepository());
+            var stockVM = new StockReceiptViewModel(stockService, ingService, empService);
+
+            var recipeService = new RecipeService(new FakeRecipeRepository());
+            var dishService = new DishService(new FakeDishRepository());
+            var recipeVM = new RecipeMappingViewModel(recipeService, ingService, dishService, dialogService);
+
+            var inventoryVM = new InventoryViewModel(ingVM, stockVM, recipeVM);
+
+            Assert.Same(ingVM, inventoryVM.IngredientVM);
+            Assert.Same(stockVM, inventoryVM.StockReceiptVM);
+            Assert.Same(recipeVM, inventoryVM.RecipeMappingVM);
+        }
     }
 }
+

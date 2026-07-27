@@ -99,11 +99,6 @@ namespace RestaurantPOS.ViewModels.Inventory
         public ICommand DeleteRecipeItemCommand { get; }
         public ICommand ClearFormCommand { get; }
 
-        public RecipeMappingViewModel()
-            : this(new RecipeService(), new IngredientService(), new DishService(), new WpfDialogService())
-        {
-        }
-
         public RecipeMappingViewModel(
             IRecipeService recipeService,
             IIngredientService ingredientService,

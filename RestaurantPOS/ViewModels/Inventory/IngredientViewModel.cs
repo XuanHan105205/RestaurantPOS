@@ -83,11 +83,6 @@ namespace RestaurantPOS.ViewModels.Inventory
         public ICommand DeleteIngredientCommand { get; }
         public ICommand ClearFormCommand { get; }
 
-        public IngredientViewModel()
-            : this(new IngredientService(), new WpfDialogService())
-        {
-        }
-
         public IngredientViewModel(IIngredientService ingredientService, IDialogService dialogService)
         {
             _ingredientService = ingredientService;

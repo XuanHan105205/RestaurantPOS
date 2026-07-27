@@ -28,7 +28,7 @@ namespace RestaurantPOS.ViewModels.Core
             NavigateKitchenCommand = new RelayCommand(
                 () => Navigation.CurrentViewModel = new KitchenViewModel());
             NavigateInventoryCommand = new RelayCommand(
-                () => Navigation.CurrentViewModel = new InventoryViewModel());
+                () => Navigation.CurrentViewModel = CreateInventoryViewModel());
             NavigateBillingCommand = new RelayCommand(
                 () => Navigation.CurrentViewModel = new BillingViewModel());
             NavigateCustomerCommand = new RelayCommand(
@@ -68,6 +68,21 @@ namespace RestaurantPOS.ViewModels.Core
                 _dialogService);
         }
 
+        private InventoryViewModel CreateInventoryViewModel()
+        {
+            var ingredientService = new IngredientService();
+            var stockService = new StockService();
+            var recipeService = new RecipeService();
+            var dishService = new DishService();
+            var employeeService = new EmployeeService();
+
+            var ingredientVM = new IngredientViewModel(ingredientService, _dialogService);
+            var stockReceiptVM = new StockReceiptViewModel(stockService, ingredientService, employeeService);
+            var recipeMappingVM = new RecipeMappingViewModel(recipeService, ingredientService, dishService, _dialogService);
+
+            return new InventoryViewModel(ingredientVM, stockReceiptVM, recipeMappingVM);
+        }
+
         private void SetDefaultView()
         {
             switch (_authService.CurrentUser?.Role?.ToLower())
@@ -79,7 +94,7 @@ namespace RestaurantPOS.ViewModels.Core
                     Navigation.CurrentViewModel = new KitchenViewModel();
                     break;
                 case "inventory":
-                    Navigation.CurrentViewModel = new InventoryViewModel();
+                    Navigation.CurrentViewModel = CreateInventoryViewModel();
                     break;
                 case "cashier":
                     Navigation.CurrentViewModel = new BillingViewModel();
