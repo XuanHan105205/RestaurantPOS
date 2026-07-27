@@ -46,6 +46,7 @@ namespace RestaurantPOS.ViewModels.Waiter
     public class OrderViewModel : ViewModelBase
     {
         private readonly IOrderService _orderService;
+        private readonly IDialogService _dialogService;
 
         public RestaurantTable SelectedTable { get; }
         public DiningSession ActiveSession { get; }
@@ -109,11 +110,16 @@ namespace RestaurantPOS.ViewModels.Waiter
         public ICommand ConfirmOrderCommand { get; }
         public ICommand CancelOrderCommand { get; }
 
-        public OrderViewModel(RestaurantTable table, DiningSession session)
+        public OrderViewModel(
+            RestaurantTable table, 
+            DiningSession session, 
+            IOrderService? orderService = null, 
+            IDialogService? dialogService = null)
         {
             SelectedTable = table;
             ActiveSession = session;
-            _orderService = new OrderService();
+            _orderService = orderService ?? new OrderService();
+            _dialogService = dialogService ?? new DialogService();
             _cart = new ObservableCollection<CartItem>();
             _cart.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CartTotal));
 
@@ -210,7 +216,7 @@ namespace RestaurantPOS.ViewModels.Waiter
         {
             if (Cart.Count == 0)
             {
-                System.Windows.MessageBox.Show("Vui lòng chọn món ăn trước khi xác nhận!");
+                _dialogService.ShowMessage("Vui lòng chọn món ăn trước khi xác nhận!", "Thông báo");
                 return;
             }
 
@@ -229,18 +235,18 @@ namespace RestaurantPOS.ViewModels.Waiter
             bool success = _orderService.PlaceOrder(ActiveSession.SessionId, employeeId, orderItems);
             if (success)
             {
-                System.Windows.MessageBox.Show("Gọi món thành công!");
-                NavigationService.Instance.CurrentViewModel = new TableViewModel();
+                _dialogService.ShowMessage("Gọi món thành công!", "Thành công");
+                NavigationService.Instance.CurrentViewModel = new TableViewModel(null, null, _dialogService);
             }
             else
             {
-                System.Windows.MessageBox.Show("Có lỗi xảy ra khi gọi món. Vui lòng thử lại.");
+                _dialogService.ShowMessage("Có lỗi xảy ra khi gọi món. Vui lòng thử lại.", "Lỗi");
             }
         }
 
         private void CancelOrder()
         {
-            NavigationService.Instance.CurrentViewModel = new TableViewModel();
+            NavigationService.Instance.CurrentViewModel = new TableViewModel(null, null, _dialogService);
         }
     }
 }

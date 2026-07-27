@@ -13,6 +13,7 @@ namespace RestaurantPOS.ViewModels.Waiter
     {
         private readonly ITableService _tableService;
         private readonly ICustomerService _customerService;
+        private readonly IDialogService _dialogService;
 
         private ObservableCollection<RestaurantTable> _tables = new();
         public ObservableCollection<RestaurantTable> Tables
@@ -90,10 +91,14 @@ namespace RestaurantPOS.ViewModels.Waiter
         public ICommand GoToOrderCommand { get; }
         public ICommand ViewOrderDetailsCommand { get; }
 
-        public TableViewModel()
+        public TableViewModel(
+            ITableService? tableService = null,
+            ICustomerService? customerService = null,
+            IDialogService? dialogService = null)
         {
-            _tableService = new TableService();
-            _customerService = new CustomerService();
+            _tableService = tableService ?? new TableService();
+            _customerService = customerService ?? new CustomerService();
+            _dialogService = dialogService ?? new DialogService();
 
             LoadTablesCommand = new RelayCommand(LoadTables);
             SearchCustomerCommand = new RelayCommand(SearchCustomer);
@@ -213,7 +218,7 @@ namespace RestaurantPOS.ViewModels.Waiter
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Lỗi khi mở bàn: {ex.Message}");
+                _dialogService.ShowMessage($"Lỗi khi mở bàn: {ex.Message}", "Lỗi");
             }
         }
 
@@ -231,16 +236,14 @@ namespace RestaurantPOS.ViewModels.Waiter
         private void GoToOrder()
         {
             if (SelectedTable == null || ActiveSession == null) return;
-            NavigationService.Instance.CurrentViewModel = new OrderViewModel(SelectedTable, ActiveSession);
+            NavigationService.Instance.CurrentViewModel = new OrderViewModel(SelectedTable, ActiveSession, null, _dialogService);
         }
 
         private void ViewOrderDetails()
         {
             if (SelectedTable == null || ActiveSession == null) return;
 
-            var popup = new Views.Waiter.OrderDetailPopup(ActiveSession, SelectedTable.TableName);
-            popup.Owner = System.Windows.Application.Current.MainWindow;
-            popup.ShowDialog();
+            _dialogService.ShowOrderDetailPopup(ActiveSession, SelectedTable.TableName);
             
             // Refresh tables to display any updates in status or items
             LoadTables();

@@ -192,7 +192,7 @@
         </Border>
 
         <!-- CLOSE BUTTON -->
-        <Button Grid.Row="3" Content="ĐÓNG HỘP THOẠI" Click="Close_Click"
+        <Button Grid.Row="3" Content="ĐÓNG HỘP THOẠI" Command="{Binding CloseCommand}"
                 Background="#4A5568" Foreground="White" Height="40" FontSize="13" FontWeight="Bold" Cursor="Hand">
             <Button.Template>
                 <ControlTemplate TargetType="Button">

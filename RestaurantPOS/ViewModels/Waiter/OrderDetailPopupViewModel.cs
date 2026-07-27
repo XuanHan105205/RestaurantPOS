@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using RestaurantPOS.Models;
 using RestaurantPOS.MVVM;
@@ -79,8 +78,12 @@ namespace RestaurantPOS.ViewModels.Waiter
     public class OrderDetailPopupViewModel : ViewModelBase
     {
         private readonly IOrderService _orderService;
+        private readonly IDialogService _dialogService;
+
         public DiningSession ActiveSession { get; }
         public string TableName { get; }
+
+        public event Action<bool?>? RequestClose;
 
         private ObservableCollection<OrderedItemViewModel> _orderedItems;
         public ObservableCollection<OrderedItemViewModel> OrderedItems
@@ -103,12 +106,18 @@ namespace RestaurantPOS.ViewModels.Waiter
         public ICommand DecrementCommand { get; }
         public ICommand SaveNoteCommand { get; }
         public ICommand CancelItemCommand { get; }
+        public ICommand CloseCommand { get; }
 
-        public OrderDetailPopupViewModel(DiningSession session, string tableName)
+        public OrderDetailPopupViewModel(
+            DiningSession session, 
+            string tableName,
+            IOrderService? orderService = null,
+            IDialogService? dialogService = null)
         {
             ActiveSession = session;
             TableName = tableName;
-            _orderService = new OrderService();
+            _orderService = orderService ?? new OrderService();
+            _dialogService = dialogService ?? new DialogService();
             _orderedItems = new ObservableCollection<OrderedItemViewModel>();
 
             LoadItemsCommand = new RelayCommand(LoadItems);
@@ -116,6 +125,7 @@ namespace RestaurantPOS.ViewModels.Waiter
             DecrementCommand = new RelayCommand<OrderedItemViewModel>(DecrementQuantity);
             SaveNoteCommand = new RelayCommand<OrderedItemViewModel>(SaveNote);
             CancelItemCommand = new RelayCommand<OrderedItemViewModel>(CancelItem);
+            CloseCommand = new RelayCommand(() => RequestClose?.Invoke(true));
 
             LoadItems();
         }
@@ -178,11 +188,11 @@ namespace RestaurantPOS.ViewModels.Waiter
 
             if (_orderService.UpdateOrderItem(item.OrderItem))
             {
-                MessageBox.Show("Cập nhật ghi chú thành công!");
+                _dialogService.ShowMessage("Cập nhật ghi chú thành công!", "Thành công");
             }
             else
             {
-                MessageBox.Show("Không thể cập nhật ghi chú.");
+                _dialogService.ShowMessage("Không thể cập nhật ghi chú.", "Lỗi");
             }
         }
 
@@ -190,8 +200,8 @@ namespace RestaurantPOS.ViewModels.Waiter
         {
             if (item == null || !item.IsPending) return;
 
-            var result = MessageBox.Show($"Bạn có chắc chắn muốn hủy món '{item.DishName}'?", "Xác nhận hủy món", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.Yes)
+            bool confirmed = _dialogService.Confirm($"Bạn có chắc chắn muốn hủy món '{item.DishName}'?", "Xác nhận hủy món");
+            if (confirmed)
             {
                 item.OrderItem.Status = "cancelled";
                 item.OrderItem.StatusUpdatedAt = DateTime.Now;
