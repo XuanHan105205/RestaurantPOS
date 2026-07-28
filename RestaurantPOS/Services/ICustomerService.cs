@@ -6,6 +6,7 @@ namespace RestaurantPOS.Services
     public interface ICustomerService
     {
         List<Customer> GetAllCustomers();
+        List<Customer> SearchCustomers(string keyword);
         Customer GetCustomerByPhone(string phone);
         bool AddCustomer(Customer customer);
         bool UpdateCustomer(Customer customer);

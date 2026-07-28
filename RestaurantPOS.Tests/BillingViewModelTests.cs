@@ -47,6 +47,7 @@ namespace RestaurantPOS.Tests
     public class FakeBillingCustomerService : ICustomerService
     {
         public List<Customer> GetAllCustomers() => new List<Customer>();
+        public List<Customer> SearchCustomers(string keyword) => new List<Customer>();
         public Customer GetCustomerByPhone(string phone) => null;
         public bool AddCustomer(Customer customer) => true;
         public bool UpdateCustomer(Customer customer) => true;

@@ -129,5 +129,40 @@ namespace RestaurantPOS.Tests
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void SearchCustomers_ByName_IgnoresUppercase()
+        {
+            var repository = new FakeCustomerRepository();
+            repository.Customers.Add(new Customer
+            {
+                CustomerId = 1,
+                FullName = "Nguyễn Thị Hoa",
+                Phone = "0909090909"
+            });
+            var service = new CustomerService(repository);
+
+            var results = service.SearchCustomers("hoa");
+
+            Assert.Single(results);
+            Assert.Equal("Nguyễn Thị Hoa", results[0].FullName);
+        }
+
+        [Fact]
+        public void SearchCustomers_ByPartialPhone_ReturnsCustomer()
+        {
+            var repository = new FakeCustomerRepository();
+            repository.Customers.Add(new Customer
+            {
+                CustomerId = 1,
+                FullName = "Nguyễn Thị Hoa",
+                Phone = "0909090909"
+            });
+            var service = new CustomerService(repository);
+
+            var results = service.SearchCustomers("0909");
+
+            Assert.Single(results);
+        }
     }
 }
