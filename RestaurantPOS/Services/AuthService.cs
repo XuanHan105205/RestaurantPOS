@@ -1,5 +1,5 @@
 using RestaurantPOS.Models;
-using RestaurantPOS.Repositories; // <-- Thêm dòng này
+using RestaurantPOS.Repositories;
 
 namespace RestaurantPOS.Services
 {
@@ -10,21 +10,27 @@ namespace RestaurantPOS.Services
 
         public Employee CurrentUser { get; private set; }
 
-        private readonly IEmployeeRepository _employeeRepository; // <-- Khai báo repo
+        private readonly IEmployeeRepository _employeeRepository;
 
-        // --- Cập nhật Constructor để khởi tạo repository ---
         private AuthService()
+            : this(new EmployeeRepository())
         {
-            _employeeRepository = new EmployeeRepository();
         }
 
-        // --- COPY VÀ THAY THẾ HÀM Login CŨ BẰNG ĐOẠN DƯỚI ĐÂY ---
+        // Constructor này giúp kiểm thử mà không cần kết nối database thật.
+        public AuthService(IEmployeeRepository employeeRepository)
+        {
+            _employeeRepository = employeeRepository;
+        }
+
         public bool Login(string username, string password)
         {
-            // 1. Lấy thông tin nhân viên theo Username dưới Database
-            var employee = _employeeRepository.GetByUsername(username);
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
+            {
+                return false;
+            }
 
-            // 2. So sánh mật khẩu và trạng thái hoạt động
+            var employee = _employeeRepository.GetByUsername(username.Trim());
             if (employee != null && employee.IsActive && employee.PasswordHash == password)
             {
                 CurrentUser = employee;
