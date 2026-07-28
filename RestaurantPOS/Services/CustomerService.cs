@@ -9,8 +9,14 @@ namespace RestaurantPOS.Services
         private readonly ICustomerRepository _customerRepository;
 
         public CustomerService()
+            : this(new CustomerRepository())
         {
-            _customerRepository = new CustomerRepository();
+        }
+
+        // Constructor này giúp kiểm thử mà không cần kết nối database thật.
+        public CustomerService(ICustomerRepository customerRepository)
+        {
+            _customerRepository = customerRepository;
         }
 
         public List<Customer> GetAllCustomers()
@@ -20,21 +26,50 @@ namespace RestaurantPOS.Services
 
         public Customer GetCustomerByPhone(string phone)
         {
-            return _customerRepository.GetByPhone(phone);
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                return null;
+            }
+
+            return _customerRepository.GetByPhone(phone.Trim());
         }
 
         public bool AddCustomer(Customer customer)
         {
-            if (string.IsNullOrEmpty(customer.MembershipTier))
+            if (!IsValidCustomer(customer))
             {
-                customer.MembershipTier = "regular";
+                return false;
             }
+
+            customer.FullName = customer.FullName.Trim();
+            customer.Phone = customer.Phone.Trim();
+
+            if (_customerRepository.GetByPhone(customer.Phone) != null)
+            {
+                return false;
+            }
+
+            UpdateMembershipTier(customer);
             return _customerRepository.Add(customer);
         }
 
         public bool UpdateCustomer(Customer customer)
         {
-            // Tích hợp logic thăng hạng thành viên dựa trên số điểm tích lũy
+            if (!IsValidCustomer(customer))
+            {
+                return false;
+            }
+
+            customer.FullName = customer.FullName.Trim();
+            customer.Phone = customer.Phone.Trim();
+
+            var customerWithSamePhone = _customerRepository.GetByPhone(customer.Phone);
+            if (customerWithSamePhone != null &&
+                customerWithSamePhone.CustomerId != customer.CustomerId)
+            {
+                return false;
+            }
+
             UpdateMembershipTier(customer);
             return _customerRepository.Update(customer);
         }
@@ -58,7 +93,39 @@ namespace RestaurantPOS.Services
 
         public bool DeleteCustomer(int id)
         {
+            if (id <= 0)
+            {
+                return false;
+            }
+
             return _customerRepository.Delete(id);
+        }
+
+        private bool IsValidCustomer(Customer customer)
+        {
+            if (customer == null ||
+                string.IsNullOrWhiteSpace(customer.FullName) ||
+                string.IsNullOrWhiteSpace(customer.Phone) ||
+                customer.LoyaltyPoints < 0)
+            {
+                return false;
+            }
+
+            string phone = customer.Phone.Trim();
+            if (phone.Length < 9 || phone.Length > 15)
+            {
+                return false;
+            }
+
+            foreach (char character in phone)
+            {
+                if (!char.IsDigit(character))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

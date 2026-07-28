@@ -108,9 +108,16 @@ namespace RestaurantPOS.ViewModels.Core
 
         private void ExecuteLoadCustomers()
         {
-            var list = _customerService.GetAllCustomers();
-            Customers = new ObservableCollection<Customer>(list);
-            StatusMessage = "Đã tải danh sách khách hàng.";
+            try
+            {
+                var list = _customerService.GetAllCustomers();
+                Customers = new ObservableCollection<Customer>(list);
+                StatusMessage = "Đã tải danh sách khách hàng.";
+            }
+            catch
+            {
+                StatusMessage = "Không thể tải danh sách. Hãy kiểm tra kết nối database.";
+            }
         }
 
         private void ExecuteSearch()
@@ -121,16 +128,23 @@ namespace RestaurantPOS.ViewModels.Core
                 return;
             }
 
-            var customer = _customerService.GetCustomerByPhone(SearchText.Trim());
-            Customers.Clear();
-            if (customer != null)
+            try
             {
-                Customers.Add(customer);
-                StatusMessage = $"Tìm thấy khách hàng: {customer.FullName}";
+                var customer = _customerService.GetCustomerByPhone(SearchText.Trim());
+                Customers.Clear();
+                if (customer != null)
+                {
+                    Customers.Add(customer);
+                    StatusMessage = $"Tìm thấy khách hàng: {customer.FullName}";
+                }
+                else
+                {
+                    StatusMessage = "Không tìm thấy khách hàng với số điện thoại này.";
+                }
             }
-            else
+            catch
             {
-                StatusMessage = "Không tìm thấy khách hàng nào với số điện thoại này.";
+                StatusMessage = "Không thể tìm kiếm. Hãy kiểm tra kết nối database.";
             }
         }
 
@@ -149,7 +163,16 @@ namespace RestaurantPOS.ViewModels.Core
                 LoyaltyPoints = LoyaltyPoints
             };
 
-            bool success = _customerService.AddCustomer(newCustomer);
+            bool success;
+            try
+            {
+                success = _customerService.AddCustomer(newCustomer);
+            }
+            catch
+            {
+                StatusMessage = "Không thể thêm khách hàng. Hãy kiểm tra kết nối database.";
+                return;
+            }
             if (success)
             {
                 ExecuteLoadCustomers();
@@ -176,7 +199,16 @@ namespace RestaurantPOS.ViewModels.Core
             SelectedCustomer.MembershipTier = MembershipTier;
             SelectedCustomer.LoyaltyPoints = LoyaltyPoints;
 
-            bool success = _customerService.UpdateCustomer(SelectedCustomer);
+            bool success;
+            try
+            {
+                success = _customerService.UpdateCustomer(SelectedCustomer);
+            }
+            catch
+            {
+                StatusMessage = "Không thể cập nhật. Hãy kiểm tra kết nối database.";
+                return;
+            }
             if (success)
             {
                 ExecuteLoadCustomers();
@@ -197,7 +229,16 @@ namespace RestaurantPOS.ViewModels.Core
                 "Xác nhận xóa",
                 $"Bạn có chắc chắn muốn xóa khách hàng '{SelectedCustomer.FullName}' không?"))
             {
-                bool success = _customerService.DeleteCustomer(SelectedCustomer.CustomerId);
+                bool success;
+                try
+                {
+                    success = _customerService.DeleteCustomer(SelectedCustomer.CustomerId);
+                }
+                catch
+                {
+                    StatusMessage = "Không thể xóa. Khách hàng có thể đang được sử dụng.";
+                    return;
+                }
                 if (success)
                 {
                     ExecuteLoadCustomers();
