@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using RestaurantPOS.Models;
 using RestaurantPOS.MVVM;
@@ -79,6 +78,7 @@ namespace RestaurantPOS.ViewModels.Waiter
     public class OrderDetailPopupViewModel : ViewModelBase
     {
         private readonly IOrderService _orderService;
+        private readonly IDialogService _dialogService;
         public DiningSession ActiveSession { get; }
         public string TableName { get; }
 
@@ -105,10 +105,20 @@ namespace RestaurantPOS.ViewModels.Waiter
         public ICommand CancelItemCommand { get; }
 
         public OrderDetailPopupViewModel(DiningSession session, string tableName)
+            : this(session, tableName, new OrderService(), new WpfDialogService())
+        {
+        }
+
+        public OrderDetailPopupViewModel(
+            DiningSession session,
+            string tableName,
+            IOrderService orderService,
+            IDialogService dialogService)
         {
             ActiveSession = session;
             TableName = tableName;
-            _orderService = new OrderService();
+            _orderService = orderService;
+            _dialogService = dialogService;
             _orderedItems = new ObservableCollection<OrderedItemViewModel>();
 
             LoadItemsCommand = new RelayCommand(LoadItems);
@@ -178,11 +188,11 @@ namespace RestaurantPOS.ViewModels.Waiter
 
             if (_orderService.UpdateOrderItem(item.OrderItem))
             {
-                MessageBox.Show("Cập nhật ghi chú thành công!");
+                _dialogService.ShowMessage("Cập nhật món", "Cập nhật ghi chú thành công!");
             }
             else
             {
-                MessageBox.Show("Không thể cập nhật ghi chú.");
+                _dialogService.ShowMessage("Cập nhật món", "Không thể cập nhật ghi chú.");
             }
         }
 
@@ -190,8 +200,9 @@ namespace RestaurantPOS.ViewModels.Waiter
         {
             if (item == null || !item.IsPending) return;
 
-            var result = MessageBox.Show($"Bạn có chắc chắn muốn hủy món '{item.DishName}'?", "Xác nhận hủy món", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.Yes)
+            if (_dialogService.Confirm(
+                "Xác nhận hủy món",
+                $"Bạn có chắc chắn muốn hủy món '{item.DishName}'?"))
             {
                 item.OrderItem.Status = "cancelled";
                 item.OrderItem.StatusUpdatedAt = DateTime.Now;

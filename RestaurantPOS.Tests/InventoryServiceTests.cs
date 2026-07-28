@@ -45,9 +45,7 @@ namespace RestaurantPOS.Tests
             return _data.FindAll(i => i.MinStockAlert.HasValue && i.StockQuantity <= i.MinStockAlert.Value);
         }
 
-        public void DeductStockForDish(int dishId, int quantity, Data.RestaurantPOSDbContext context)
-        {
-        }
+        public bool DeductStockForDish(int dishId, int quantity) => true;
     }
 
     public class FakeStockReceiptRepository : IStockReceiptRepository

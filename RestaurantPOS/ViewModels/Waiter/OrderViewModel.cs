@@ -46,6 +46,7 @@ namespace RestaurantPOS.ViewModels.Waiter
     public class OrderViewModel : ViewModelBase
     {
         private readonly IOrderService _orderService;
+        private readonly IDialogService _dialogService;
 
         public RestaurantTable SelectedTable { get; }
         public DiningSession ActiveSession { get; }
@@ -113,10 +114,20 @@ namespace RestaurantPOS.ViewModels.Waiter
         public ICommand CancelOrderCommand { get; }
 
         public OrderViewModel(RestaurantTable table, DiningSession session)
+            : this(table, session, new OrderService(), new WpfDialogService())
+        {
+        }
+
+        public OrderViewModel(
+            RestaurantTable table,
+            DiningSession session,
+            IOrderService orderService,
+            IDialogService dialogService)
         {
             SelectedTable = table;
             ActiveSession = session;
-            _orderService = new OrderService();
+            _orderService = orderService;
+            _dialogService = dialogService;
             _cart = new ObservableCollection<CartItem>();
             _cart.CollectionChanged += (s, e) =>
             {
@@ -218,11 +229,16 @@ namespace RestaurantPOS.ViewModels.Waiter
         {
             if (Cart.Count == 0)
             {
-                System.Windows.MessageBox.Show("Vui lòng chọn món ăn trước khi xác nhận!");
+                _dialogService.ShowMessage("Gọi món", "Vui lòng chọn món ăn trước khi xác nhận!");
                 return;
             }
 
-            int employeeId = AuthService.Instance.CurrentUser?.EmployeeId ?? 2; // Default to Waiter if not authenticated
+            int? employeeId = AuthService.Instance.CurrentUser?.EmployeeId;
+            if (!employeeId.HasValue)
+            {
+                _dialogService.ShowMessage("Gọi món", "Vui lòng đăng nhập trước khi gọi món.");
+                return;
+            }
 
             var orderItems = Cart.Select(item => new OrderItem
             {
@@ -234,15 +250,15 @@ namespace RestaurantPOS.ViewModels.Waiter
                 StatusUpdatedAt = DateTime.Now
             }).ToList();
 
-            bool success = _orderService.PlaceOrder(ActiveSession.SessionId, employeeId, orderItems);
+            bool success = _orderService.PlaceOrder(ActiveSession.SessionId, employeeId.Value, orderItems);
             if (success)
             {
-                System.Windows.MessageBox.Show("Gọi món thành công!");
+                _dialogService.ShowMessage("Gọi món", "Gọi món thành công!");
                 NavigationService.Instance.CurrentViewModel = new TableViewModel();
             }
             else
             {
-                System.Windows.MessageBox.Show("Có lỗi xảy ra khi gọi món. Vui lòng thử lại.");
+                _dialogService.ShowMessage("Gọi món", "Có lỗi xảy ra khi gọi món. Vui lòng thử lại.");
             }
         }
 

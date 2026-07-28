@@ -136,24 +136,6 @@ namespace RestaurantPOS.Repositories
                             }
                         }
 
-                        // 6. Tự động trừ kho cho bất kỳ món nào chưa nấu xong (vẫn ở trạng thái pending hoặc cooking)
-                        var ordersInSession = context.Orders.Where(o => o.SessionId == invoice.SessionId).ToList();
-                        var ingredientRepo = new IngredientRepository();
-                        foreach (var order in ordersInSession)
-                        {
-                            var undeductedItems = context.OrderItems
-                                .Where(oi => oi.OrderId == order.OrderId && (oi.Status == "pending" || oi.Status == "cooking"))
-                                .ToList();
-
-                            foreach (var oi in undeductedItems)
-                            {
-                                ingredientRepo.DeductStockForDish(oi.DishId, oi.Quantity, context);
-                                oi.Status = "served";
-                                oi.StatusUpdatedAt = DateTime.Now;
-                                context.OrderItems.Update(oi);
-                            }
-                        }
-
                         context.SaveChanges();
                         transaction.Commit();
                         return true;

@@ -32,5 +32,10 @@ namespace RestaurantPOS.Services
         {
             return _tableRepository.UpdateTableStatus(tableId, status);
         }
+
+        public List<int> GetTableIdsBySessionId(int sessionId)
+        {
+            return _tableRepository.GetTableIdsBySessionId(sessionId);
+        }
     }
 }

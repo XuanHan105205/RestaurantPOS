@@ -82,6 +82,16 @@ namespace RestaurantPOS.Services
             return _ingredientRepository.GetLowStockIngredients() ?? new List<Ingredient>();
         }
 
+        public bool DeductStockForDish(int dishId, int quantity)
+        {
+            if (dishId <= 0 || quantity <= 0)
+            {
+                return false;
+            }
+
+            return _ingredientRepository.DeductStockForDish(dishId, quantity);
+        }
+
         public bool ValidateIngredient(Ingredient ingredient, out string errorMessage)
         {
             errorMessage = string.Empty;

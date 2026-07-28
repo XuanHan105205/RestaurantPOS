@@ -18,7 +18,7 @@ namespace RestaurantPOS.Repositories
 
         public override Recipe GetById(int id)
         {
-            throw new NotImplementedException("Use GetRecipe(dishId, ingredientId) for composite key lookup.");
+            return null;
         }
 
         public override bool Add(Recipe entity)
@@ -41,7 +41,7 @@ namespace RestaurantPOS.Repositories
 
         public override bool Delete(int id)
         {
-            throw new NotImplementedException("Use DeleteRecipe(dishId, ingredientId) for composite key delete.");
+            return false;
         }
 
         public List<Recipe> GetRecipesByDishId(int dishId)

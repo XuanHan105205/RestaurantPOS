@@ -8,10 +8,19 @@ namespace RestaurantPOS.Services
     public class KitchenService : IKitchenService
     {
         private readonly IOrderItemRepository _orderItemRepository;
+        private readonly IIngredientService _ingredientService;
 
         public KitchenService()
+            : this(new OrderItemRepository(), new IngredientService())
         {
-            _orderItemRepository = new OrderItemRepository();
+        }
+
+        public KitchenService(
+            IOrderItemRepository orderItemRepository,
+            IIngredientService ingredientService)
+        {
+            _orderItemRepository = orderItemRepository;
+            _ingredientService = ingredientService;
         }
 
         public List<KitchenOrderItemDto> GetActiveKitchenItems()
@@ -30,21 +39,31 @@ namespace RestaurantPOS.Services
             if (item == null) return false;
 
             string oldStatus = item.Status;
+            string expectedStatus = oldStatus switch
+            {
+                "pending" => "cooking",
+                "cooking" => "ready",
+                "ready" => "served",
+                _ => string.Empty
+            };
+
+            if (newStatus != expectedStatus)
+            {
+                return false;
+            }
+
             item.Status = newStatus;
             item.StatusUpdatedAt = DateTime.Now;
 
             bool success = _orderItemRepository.Update(item);
-            if (success)
+            if (success && newStatus == "ready")
             {
-                // Trừ kho tự động khi trạng thái chuyển sang "ready" (nếu trước đó chưa trừ)
-                if (newStatus == "ready" && oldStatus != "ready" && oldStatus != "served")
+                if (!_ingredientService.DeductStockForDish(item.DishId, item.Quantity))
                 {
-                    using (var context = new Data.RestaurantPOSDbContext())
-                    {
-                        var ingredientRepo = new IngredientRepository();
-                        ingredientRepo.DeductStockForDish(item.DishId, item.Quantity, context);
-                        context.SaveChanges();
-                    }
+                    item.Status = oldStatus;
+                    item.StatusUpdatedAt = DateTime.Now;
+                    _orderItemRepository.Update(item);
+                    return false;
                 }
             }
             return success;
