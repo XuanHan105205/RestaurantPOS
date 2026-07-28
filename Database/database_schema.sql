@@ -12,7 +12,14 @@ GO
 USE RestaurantPOS;
 GO
 
--- Xóa các khóa ngoại cũ nếu có để tránh lỗi chạy lại script
+-- Xóa view báo cáo trước vì các view đang tham chiếu đến bảng dữ liệu.
+-- Nhờ vậy script có thể chạy lại nhiều lần mà không bị lỗi.
+IF OBJECT_ID('vw_DailyPaymentBreakdown', 'V') IS NOT NULL DROP VIEW vw_DailyPaymentBreakdown;
+IF OBJECT_ID('vw_DailyBestSellingDishes', 'V') IS NOT NULL DROP VIEW vw_DailyBestSellingDishes;
+IF OBJECT_ID('vw_DailySalesSummary', 'V') IS NOT NULL DROP VIEW vw_DailySalesSummary;
+GO
+
+-- Xóa các bảng cũ theo thứ tự từ bảng con đến bảng cha.
 IF OBJECT_ID('payment_details', 'U') IS NOT NULL DROP TABLE payment_details;
 IF OBJECT_ID('invoices', 'U') IS NOT NULL DROP TABLE invoices;
 IF OBJECT_ID('stock_receipts', 'U') IS NOT NULL DROP TABLE stock_receipts;
