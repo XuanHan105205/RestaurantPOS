@@ -20,7 +20,7 @@ namespace RestaurantPOS.Services
 
         public List<Employee> GetAllEmployees()
         {
-            return _employeeRepository.GetAll() ?? new List<Employee>();
+            return _employeeRepository.GetAll();
         }
 
         public Employee? GetEmployeeById(int id)
