@@ -9,5 +9,6 @@ namespace RestaurantPOS.Services
         DiningSession GetActiveSessionByTableId(int tableId);
         DiningSession OpenSessionForTable(int tableId, int employeeId, int? customerId);
         bool UpdateTableStatus(int tableId, string status);
+        List<int> GetTableIdsBySessionId(int sessionId);
     }
 }

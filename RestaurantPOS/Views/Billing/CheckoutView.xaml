@@ -108,8 +108,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Style="{StaticResource TableCardStyle}"
-                                        Command="{Binding DataContext.LoadTablesCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        Click="TableCard_Click"/>
+                                        Command="{Binding DataContext.SelectTableCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

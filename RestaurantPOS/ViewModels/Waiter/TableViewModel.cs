@@ -13,6 +13,8 @@ namespace RestaurantPOS.ViewModels.Waiter
     {
         private readonly ITableService _tableService;
         private readonly ICustomerService _customerService;
+        private readonly IDialogService _dialogService;
+        private readonly IOrderDetailDialogService _orderDetailDialogService;
 
         private ObservableCollection<RestaurantTable> _tables = new();
         public ObservableCollection<RestaurantTable> Tables
@@ -103,9 +105,24 @@ namespace RestaurantPOS.ViewModels.Waiter
         public ICommand ViewOrderDetailsCommand { get; }
 
         public TableViewModel()
+            : this(
+                new TableService(),
+                new CustomerService(),
+                new WpfDialogService(),
+                new WpfOrderDetailDialogService(new WpfDialogService()))
         {
-            _tableService = new TableService();
-            _customerService = new CustomerService();
+        }
+
+        public TableViewModel(
+            ITableService tableService,
+            ICustomerService customerService,
+            IDialogService dialogService,
+            IOrderDetailDialogService orderDetailDialogService)
+        {
+            _tableService = tableService;
+            _customerService = customerService;
+            _dialogService = dialogService;
+            _orderDetailDialogService = orderDetailDialogService;
 
             LoadTablesCommand = new RelayCommand(LoadTables);
             SearchCustomerCommand = new RelayCommand(SearchCustomer);
@@ -203,7 +220,12 @@ namespace RestaurantPOS.ViewModels.Waiter
         {
             if (SelectedTable == null || SelectedTable.Status != "available") return;
 
-            int employeeId = AuthService.Instance.CurrentUser?.EmployeeId ?? 2; // Default to Waiter if not authenticated
+            int? employeeId = AuthService.Instance.CurrentUser?.EmployeeId;
+            if (!employeeId.HasValue)
+            {
+                _dialogService.ShowMessage("Mở bàn", "Vui lòng đăng nhập trước khi mở bàn.");
+                return;
+            }
 
             int? customerId = null;
             if (SelectedCustomer != null)
@@ -221,13 +243,13 @@ namespace RestaurantPOS.ViewModels.Waiter
 
             try
             {
-                ActiveSession = _tableService.OpenSessionForTable(SelectedTable.TableId, employeeId, customerId);
+                ActiveSession = _tableService.OpenSessionForTable(SelectedTable.TableId, employeeId.Value, customerId);
                 LoadTables();
                 OnTableSelected();
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Lỗi khi mở bàn: {ex.Message}");
+                _dialogService.ShowMessage("Mở bàn", $"Lỗi khi mở bàn: {ex.Message}");
             }
         }
 
@@ -245,16 +267,18 @@ namespace RestaurantPOS.ViewModels.Waiter
         private void GoToOrder()
         {
             if (SelectedTable == null || ActiveSession == null) return;
-            NavigationService.Instance.CurrentViewModel = new OrderViewModel(SelectedTable, ActiveSession);
+            NavigationService.Instance.CurrentViewModel = new OrderViewModel(
+                SelectedTable,
+                ActiveSession,
+                new OrderService(),
+                _dialogService);
         }
 
         private void ViewOrderDetails()
         {
             if (SelectedTable == null || ActiveSession == null) return;
 
-            var popup = new Views.Waiter.OrderDetailPopup(ActiveSession, SelectedTable.TableName);
-            popup.Owner = System.Windows.Application.Current.MainWindow;
-            popup.ShowDialog();
+            _orderDetailDialogService.Show(ActiveSession, SelectedTable.TableName);
             
             // Refresh tables to display any updates in status or items
             LoadTables();

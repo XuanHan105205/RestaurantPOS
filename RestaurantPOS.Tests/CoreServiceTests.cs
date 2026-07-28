@@ -6,7 +6,7 @@ using Xunit;
 
 namespace RestaurantPOS.Tests
 {
-    public class FakeEmployeeRepository : IEmployeeRepository
+    public class FakeAuthEmployeeRepository : IEmployeeRepository
     {
         public Employee Employee { get; set; }
 
@@ -46,7 +46,7 @@ namespace RestaurantPOS.Tests
         [Fact]
         public void Login_CorrectAccount_ReturnsTrue()
         {
-            var repository = new FakeEmployeeRepository
+            var repository = new FakeAuthEmployeeRepository
             {
                 Employee = new Employee
                 {
@@ -66,7 +66,7 @@ namespace RestaurantPOS.Tests
         [Fact]
         public void Login_InactiveAccount_ReturnsFalse()
         {
-            var repository = new FakeEmployeeRepository
+            var repository = new FakeAuthEmployeeRepository
             {
                 Employee = new Employee
                 {

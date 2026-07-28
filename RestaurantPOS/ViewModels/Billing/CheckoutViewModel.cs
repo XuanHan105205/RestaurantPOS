@@ -257,13 +257,27 @@ namespace RestaurantPOS.ViewModels.Billing
         public ICommand PayFullTransferCommand { get; }
         public ICommand CheckoutCommand { get; }
         public ICommand ClearPaymentCommand { get; }
+        public ICommand SelectTableCommand { get; }
 
         public CheckoutViewModel()
+            : this(
+                new TableService(),
+                new OrderService(),
+                new CustomerService(),
+                new InvoiceService())
         {
-            _tableService = new TableService();
-            _orderService = new OrderService();
-            _customerService = new CustomerService();
-            _invoiceService = new InvoiceService();
+        }
+
+        public CheckoutViewModel(
+            ITableService tableService,
+            IOrderService orderService,
+            ICustomerService customerService,
+            IInvoiceService invoiceService)
+        {
+            _tableService = tableService;
+            _orderService = orderService;
+            _customerService = customerService;
+            _invoiceService = invoiceService;
 
             LoadTablesCommand = new RelayCommand(LoadTables);
             SearchCustomerCommand = new RelayCommand(SearchCustomer);
@@ -273,6 +287,7 @@ namespace RestaurantPOS.ViewModels.Billing
             PayFullTransferCommand = new RelayCommand(ExecutePayFullTransfer);
             CheckoutCommand = new RelayCommand(ExecuteCheckout, CanExecuteCheckout);
             ClearPaymentCommand = new RelayCommand(ExecuteClearPayment);
+            SelectTableCommand = new RelayCommand<RestaurantTable>(table => SelectedTable = table);
 
             LoadTables();
         }
@@ -484,7 +499,9 @@ namespace RestaurantPOS.ViewModels.Billing
         {
             return SelectedTable != null && 
                    ActiveSession != null && 
+                   !HasWarningPendingCooking &&
                    TotalPaid >= TotalAmount && 
+                   CardAmount + BankTransferAmount <= TotalAmount &&
                    TotalAmount > 0;
         }
 
@@ -508,38 +525,31 @@ namespace RestaurantPOS.ViewModels.Billing
 
             // Create Payment Details
             var payments = new List<PaymentDetail>();
-            if (CashAmount > 0)
-            {
-                // For cash, if customer paid more, we record actual payment up to the total amount, or log the actual split.
-                // Normally, we record the amount that covers the bill (or the portion assigned to Cash).
-                // Let's cap Cash payment to TotalAmount - Card - Transfer so it records exact bill paid
-                decimal assignedCash = Math.Min(CashAmount, TotalAmount - CardAmount - BankTransferAmount);
-                if (assignedCash > 0)
-                {
-                    payments.Add(new PaymentDetail { Method = "cash", Amount = assignedCash });
-                }
-            }
+            decimal remainingPayment = TotalAmount;
+
             if (CardAmount > 0)
             {
-                payments.Add(new PaymentDetail { Method = "card", Amount = CardAmount });
+                decimal assignedCard = Math.Min(CardAmount, remainingPayment);
+                payments.Add(new PaymentDetail { Method = "card", Amount = assignedCard });
+                remainingPayment -= assignedCard;
             }
-            if (BankTransferAmount > 0)
+            if (BankTransferAmount > 0 && remainingPayment > 0)
             {
-                payments.Add(new PaymentDetail { Method = "bank_transfer", Amount = BankTransferAmount });
+                decimal assignedTransfer = Math.Min(BankTransferAmount, remainingPayment);
+                payments.Add(new PaymentDetail { Method = "bank_transfer", Amount = assignedTransfer });
+                remainingPayment -= assignedTransfer;
+            }
+            if (CashAmount > 0 && remainingPayment > 0)
+            {
+                decimal assignedCash = Math.Min(CashAmount, remainingPayment);
+                payments.Add(new PaymentDetail { Method = "cash", Amount = assignedCash });
             }
 
             // Find all tables merged in this session (usually just SelectedTable, but we query table_sessions)
-            List<int> tableIds = new List<int> { SelectedTable.TableId };
-            using (var context = new Data.RestaurantPOSDbContext())
+            List<int> tableIds = _tableService.GetTableIdsBySessionId(ActiveSession.SessionId);
+            if (tableIds.Count == 0)
             {
-                var mergedTables = context.TableSessions
-                    .Where(ts => ts.SessionId == ActiveSession.SessionId)
-                    .Select(ts => ts.TableId)
-                    .ToList();
-                if (mergedTables.Any())
-                {
-                    tableIds = mergedTables;
-                }
+                tableIds.Add(SelectedTable.TableId);
             }
 
             // Loyalty points calculation: 1 point for each 10,000 VND spent

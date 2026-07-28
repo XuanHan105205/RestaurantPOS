@@ -126,5 +126,16 @@ namespace RestaurantPOS.Repositories
                 return false;
             }
         }
+
+        public List<int> GetTableIdsBySessionId(int sessionId)
+        {
+            using (var context = new RestaurantPOSDbContext())
+            {
+                return context.TableSessions
+                    .Where(ts => ts.SessionId == sessionId)
+                    .Select(ts => ts.TableId)
+                    .ToList();
+            }
+        }
     }
 }

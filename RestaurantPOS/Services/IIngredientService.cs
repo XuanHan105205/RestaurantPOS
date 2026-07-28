@@ -11,5 +11,6 @@ namespace RestaurantPOS.Services
         bool UpdateIngredient(Ingredient ingredient);
         bool DeleteIngredient(int id);
         List<Ingredient> GetLowStockIngredients();
+        bool DeductStockForDish(int dishId, int quantity);
     }
 }

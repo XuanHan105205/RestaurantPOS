@@ -65,21 +65,29 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public void DeductStockForDish(int dishId, int quantity, RestaurantPOSDbContext context)
+        public bool DeductStockForDish(int dishId, int quantity)
         {
-            var recipes = context.Recipes.Where(r => r.DishId == dishId).ToList();
-            foreach (var recipe in recipes)
+            using (var context = new RestaurantPOSDbContext())
             {
-                var ingredient = context.Ingredients.Find(recipe.IngredientId);
-                if (ingredient != null)
+                var recipes = context.Recipes.Where(r => r.DishId == dishId).ToList();
+                foreach (var recipe in recipes)
                 {
-                    ingredient.StockQuantity -= recipe.QuantityPerServing * quantity;
-                    if (ingredient.StockQuantity < 0)
+                    var ingredient = context.Ingredients.Find(recipe.IngredientId);
+                    decimal requiredQuantity = recipe.QuantityPerServing * quantity;
+                    if (ingredient == null || ingredient.StockQuantity < requiredQuantity)
                     {
-                        ingredient.StockQuantity = 0;
+                        return false;
                     }
+                }
+
+                foreach (var recipe in recipes)
+                {
+                    var ingredient = context.Ingredients.Find(recipe.IngredientId);
+                    ingredient.StockQuantity -= recipe.QuantityPerServing * quantity;
                     context.Ingredients.Update(ingredient);
                 }
+
+                return context.SaveChanges() >= 0;
             }
         }
     }
