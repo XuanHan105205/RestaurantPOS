@@ -15,7 +15,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override Customer GetById(int id)
+        public override Customer? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {
@@ -23,7 +23,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public Customer GetByPhone(string phone)
+        public Customer? GetByPhone(string phone)
         {
             using (var context = new RestaurantPOSDbContext())
             {

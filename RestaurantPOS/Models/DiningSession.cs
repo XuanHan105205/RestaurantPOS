@@ -9,6 +9,6 @@ namespace RestaurantPOS.Models
         public DateTime? ClosedAt { get; set; }
         public int OpenedByEmployeeId { get; set; }
         public int? CustomerId { get; set; }
-        public string Status { get; set; } // 'open', 'closed'
+        public string Status { get; set; } = "open"; // 'open', 'closed'
     }
 }

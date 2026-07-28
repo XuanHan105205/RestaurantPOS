@@ -14,15 +14,15 @@ namespace RestaurantPOS.ViewModels.Inventory
         private readonly IIngredientService _ingredientService;
         private readonly IDialogService _dialogService;
 
-        private ObservableCollection<Ingredient> _ingredients;
+        private ObservableCollection<Ingredient> _ingredients = new();
         public ObservableCollection<Ingredient> Ingredients
         {
             get => _ingredients;
             set => SetProperty(ref _ingredients, value);
         }
 
-        private Ingredient _selectedIngredient;
-        public Ingredient SelectedIngredient
+        private Ingredient? _selectedIngredient;
+        public Ingredient? SelectedIngredient
         {
             get => _selectedIngredient;
             set
@@ -34,14 +34,14 @@ namespace RestaurantPOS.ViewModels.Inventory
             }
         }
 
-        private string _ingredientName;
+        private string _ingredientName = string.Empty;
         public string IngredientName
         {
             get => _ingredientName;
             set => SetProperty(ref _ingredientName, value);
         }
 
-        private string _unit;
+        private string _unit = string.Empty;
         public string Unit
         {
             get => _unit;
@@ -62,14 +62,14 @@ namespace RestaurantPOS.ViewModels.Inventory
             set => SetProperty(ref _minStockAlert, value);
         }
 
-        private string _statusMessage;
+        private string _statusMessage = string.Empty;
         public string StatusMessage
         {
             get => _statusMessage;
             set => SetProperty(ref _statusMessage, value);
         }
 
-        private string _statusColor;
+        private string _statusColor = string.Empty;
         public string StatusColor
         {
             get => _statusColor;
@@ -156,7 +156,7 @@ namespace RestaurantPOS.ViewModels.Inventory
             {
                 if (IsEditMode)
                 {
-                    SelectedIngredient.IngredientName = IngredientName;
+                    SelectedIngredient!.IngredientName = IngredientName;
                     SelectedIngredient.Unit = Unit;
                     SelectedIngredient.StockQuantity = StockQuantity;
                     SelectedIngredient.MinStockAlert = MinStockAlert;

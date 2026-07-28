@@ -24,7 +24,7 @@ namespace RestaurantPOS.Services
             return _recipeRepository.GetRecipesByDishId(dishId) ?? new List<Recipe>();
         }
 
-        public Recipe GetRecipe(int dishId, int ingredientId)
+        public Recipe? GetRecipe(int dishId, int ingredientId)
         {
             if (dishId <= 0 || ingredientId <= 0) return null;
             return _recipeRepository.GetRecipe(dishId, ingredientId);

@@ -9,10 +9,10 @@ namespace RestaurantPOS.Tests
 {
     public class FakeKitchenOrderItemRepository : IOrderItemRepository
     {
-        public OrderItem Item { get; set; }
+        public OrderItem? Item { get; set; }
 
         public List<OrderItem> GetAll() => new List<OrderItem>();
-        public OrderItem GetById(int id) => Item;
+        public OrderItem? GetById(int id) => Item;
         public bool Add(OrderItem entity) => true;
         public bool Update(OrderItem entity)
         {
@@ -30,7 +30,7 @@ namespace RestaurantPOS.Tests
         public int DeductCallCount { get; private set; }
 
         public List<Ingredient> GetAllIngredients() => new List<Ingredient>();
-        public Ingredient GetIngredientById(int id) => null;
+        public Ingredient? GetIngredientById(int id) => null;
         public bool AddIngredient(Ingredient ingredient) => true;
         public bool UpdateIngredient(Ingredient ingredient) => true;
         public bool DeleteIngredient(int id) => true;
@@ -53,7 +53,7 @@ namespace RestaurantPOS.Tests
             bool result = service.UpdateOrderItemStatus(1, "served");
 
             Assert.False(result);
-            Assert.Equal("pending", repository.Item.Status);
+            Assert.Equal("pending", repository.Item!.Status);
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace RestaurantPOS.Tests
             bool result = service.UpdateOrderItemStatus(1, "ready");
 
             Assert.True(result);
-            Assert.Equal("ready", repository.Item.Status);
+            Assert.Equal("ready", repository.Item!.Status);
             Assert.Equal(1, ingredientService.DeductCallCount);
         }
 
@@ -80,7 +80,7 @@ namespace RestaurantPOS.Tests
             bool result = service.UpdateOrderItemStatus(1, "ready");
 
             Assert.False(result);
-            Assert.Equal("cooking", repository.Item.Status);
+            Assert.Equal("cooking", repository.Item!.Status);
         }
 
         private static FakeKitchenOrderItemRepository CreateRepository(string status)

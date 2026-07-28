@@ -4,6 +4,6 @@ namespace RestaurantPOS.Repositories
 {
     public interface IEmployeeRepository : IBaseRepository<Employee>
     {
-        Employee GetByUsername(string username);
+        Employee? GetByUsername(string username);
     }
 }

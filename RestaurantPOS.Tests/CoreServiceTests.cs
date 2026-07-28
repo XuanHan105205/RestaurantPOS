@@ -8,15 +8,15 @@ namespace RestaurantPOS.Tests
 {
     public class FakeAuthEmployeeRepository : IEmployeeRepository
     {
-        public Employee Employee { get; set; }
+        public Employee? Employee { get; set; }
 
-        public Employee GetByUsername(string username)
+        public Employee? GetByUsername(string username)
         {
             return Employee != null && Employee.Username == username ? Employee : null;
         }
 
         public List<Employee> GetAll() => new List<Employee>();
-        public Employee GetById(int id) => null;
+        public Employee? GetById(int id) => null;
         public bool Add(Employee entity) => true;
         public bool Update(Employee entity) => true;
         public bool Delete(int id) => true;
@@ -27,8 +27,8 @@ namespace RestaurantPOS.Tests
         public List<Customer> Customers { get; } = new List<Customer>();
 
         public List<Customer> GetAll() => new List<Customer>(Customers);
-        public Customer GetById(int id) => Customers.Find(c => c.CustomerId == id);
-        public Customer GetByPhone(string phone) => Customers.Find(c => c.Phone == phone);
+        public Customer? GetById(int id) => Customers.Find(c => c.CustomerId == id);
+        public Customer? GetByPhone(string phone) => Customers.Find(c => c.Phone == phone);
 
         public bool Add(Customer entity)
         {

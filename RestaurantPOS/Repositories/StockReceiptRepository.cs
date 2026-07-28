@@ -16,7 +16,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override StockReceipt GetById(int id)
+        public override StockReceipt? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {

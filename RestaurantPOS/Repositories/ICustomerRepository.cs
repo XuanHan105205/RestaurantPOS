@@ -4,6 +4,6 @@ namespace RestaurantPOS.Repositories
 {
     public interface ICustomerRepository : IBaseRepository<Customer>
     {
-        Customer GetByPhone(string phone);
+        Customer? GetByPhone(string phone);
     }
 }

@@ -13,7 +13,7 @@ namespace RestaurantPOS.Services
             _invoiceRepository = new InvoiceRepository();
         }
 
-        public Invoice GetInvoiceBySessionId(int sessionId)
+        public Invoice? GetInvoiceBySessionId(int sessionId)
         {
             return _invoiceRepository.GetBySessionId(sessionId);
         }

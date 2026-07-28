@@ -16,7 +16,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override Recipe GetById(int id)
+        public override Recipe? GetById(int id)
         {
             return null;
         }
@@ -54,7 +54,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public Recipe GetRecipe(int dishId, int ingredientId)
+        public Recipe? GetRecipe(int dishId, int ingredientId)
         {
             using (var context = new RestaurantPOSDbContext())
             {

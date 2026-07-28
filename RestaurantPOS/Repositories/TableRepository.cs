@@ -16,7 +16,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override RestaurantTable GetById(int id)
+        public override RestaurantTable? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {
@@ -56,7 +56,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public DiningSession GetActiveSessionByTableId(int tableId)
+        public DiningSession? GetActiveSessionByTableId(int tableId)
         {
             using (var context = new RestaurantPOSDbContext())
             {

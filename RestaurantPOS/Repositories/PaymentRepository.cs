@@ -15,7 +15,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override PaymentDetail GetById(int id)
+        public override PaymentDetail? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {

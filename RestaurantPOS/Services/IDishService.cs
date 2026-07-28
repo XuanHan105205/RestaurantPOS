@@ -7,6 +7,6 @@ namespace RestaurantPOS.Services
     {
         List<Dish> GetAllDishes();
         List<Dish> GetActiveDishes();
-        Dish GetDishById(int id);
+        Dish? GetDishById(int id);
     }
 }

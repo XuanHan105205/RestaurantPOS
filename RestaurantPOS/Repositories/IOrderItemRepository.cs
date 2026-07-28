@@ -8,13 +8,13 @@ namespace RestaurantPOS.Repositories
     {
         public int OrderItemId { get; set; }
         public int OrderId { get; set; }
-        public string DishName { get; set; }
+        public string DishName { get; set; } = string.Empty;
         public int Quantity { get; set; }
-        public string Note { get; set; }
-        public string Status { get; set; } // 'pending', 'cooking', 'ready', 'served', 'cancelled'
+        public string Note { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty; // 'pending', 'cooking', 'ready', 'served', 'cancelled'
         public DateTime? StatusUpdatedAt { get; set; }
         public DateTime OrderedAt { get; set; }
-        public string TableName { get; set; }
+        public string TableName { get; set; } = string.Empty;
         public int MinutesSinceOrdered => (int)(DateTime.Now - OrderedAt).TotalMinutes;
         public string DelayLevel
         {
