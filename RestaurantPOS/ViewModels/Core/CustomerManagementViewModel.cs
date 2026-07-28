@@ -130,16 +130,16 @@ namespace RestaurantPOS.ViewModels.Core
 
             try
             {
-                var customer = _customerService.GetCustomerByPhone(SearchText.Trim());
-                Customers.Clear();
-                if (customer != null)
+                var results = _customerService.SearchCustomers(SearchText);
+                Customers = new ObservableCollection<Customer>(results);
+
+                if (results.Count > 0)
                 {
-                    Customers.Add(customer);
-                    StatusMessage = $"Tìm thấy khách hàng: {customer.FullName}";
+                    StatusMessage = $"Tìm thấy {results.Count} khách hàng.";
                 }
                 else
                 {
-                    StatusMessage = "Không tìm thấy khách hàng với số điện thoại này.";
+                    StatusMessage = "Không tìm thấy khách hàng theo tên hoặc số điện thoại.";
                 }
             }
             catch

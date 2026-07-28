@@ -66,7 +66,7 @@
                                  VerticalContentAlignment="Center" 
                                  Padding="10,0" 
                                  FontSize="13"
-                                 Tag="Nhập số điện thoại để tìm kiếm...">
+                                 Tag="Nhập họ tên hoặc số điện thoại để tìm kiếm...">
                             <!-- Placeholder Text -->
                             <TextBox.Style>
                                 <Style TargetType="TextBox">
@@ -76,7 +76,7 @@
                                                 <Setter.Value>
                                                     <VisualBrush AlignmentX="Left" Stretch="None">
                                                         <VisualBrush.Visual>
-                                                            <TextBlock Text=" Nhập số điện thoại để tìm kiếm..." Foreground="#A0A5B5" FontSize="13" FontStyle="Italic" Padding="5,0"/>
+                                                            <TextBlock Text=" Nhập họ tên hoặc số điện thoại để tìm kiếm..." Foreground="#A0A5B5" FontSize="13" FontStyle="Italic" Padding="5,0"/>
                                                         </VisualBrush.Visual>
                                                     </VisualBrush>
                                                 </Setter.Value>

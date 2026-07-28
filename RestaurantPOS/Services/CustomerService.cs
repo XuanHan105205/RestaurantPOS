@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using RestaurantPOS.Models;
 using RestaurantPOS.Repositories;
 
@@ -22,6 +23,22 @@ namespace RestaurantPOS.Services
         public List<Customer> GetAllCustomers()
         {
             return _customerRepository.GetAll();
+        }
+
+        public List<Customer> SearchCustomers(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return GetAllCustomers();
+            }
+
+            string searchValue = keyword.Trim().ToLower();
+
+            return GetAllCustomers()
+                .Where(customer =>
+                    customer.FullName.ToLower().Contains(searchValue) ||
+                    customer.Phone.Contains(searchValue))
+                .ToList();
         }
 
         public Customer GetCustomerByPhone(string phone)
