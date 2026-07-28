@@ -9,8 +9,8 @@ namespace RestaurantPOS.Models
         public int DishId { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public string Status { get; set; } // 'pending', 'cooking', 'ready', 'served', 'cancelled'
-        public string Note { get; set; }
+        public string Status { get; set; } = "pending"; // 'pending', 'cooking', 'ready', 'served', 'cancelled'
+        public string Note { get; set; } = string.Empty;
         public DateTime? StatusUpdatedAt { get; set; }
     }
 }

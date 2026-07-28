@@ -10,6 +10,6 @@ namespace RestaurantPOS.Models
         public decimal? UnitCost { get; set; }
         public DateTime ReceivedAt { get; set; }
         public int? ReceivedByEmployeeId { get; set; }
-        public string Supplier { get; set; }
+        public string Supplier { get; set; } = string.Empty;
     }
 }

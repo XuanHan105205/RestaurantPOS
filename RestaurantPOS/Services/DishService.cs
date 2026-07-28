@@ -28,7 +28,7 @@ namespace RestaurantPOS.Services
             return _dishRepository.GetActiveDishes() ?? new List<Dish>();
         }
 
-        public Dish GetDishById(int id)
+        public Dish? GetDishById(int id)
         {
             if (id <= 0) return null;
             return _dishRepository.GetById(id);

@@ -12,7 +12,7 @@ namespace RestaurantPOS.ViewModels.Core
         private readonly IDialogService _dialogService;
 
         // Danh sách khách hàng hiển thị trên DataGrid
-        private ObservableCollection<Customer> _customers;
+        private ObservableCollection<Customer> _customers = new();
         public ObservableCollection<Customer> Customers
         {
             get => _customers;
@@ -20,8 +20,8 @@ namespace RestaurantPOS.ViewModels.Core
         }
 
         // Khách hàng đang được chọn trên DataGrid
-        private Customer _selectedCustomer;
-        public Customer SelectedCustomer
+        private Customer? _selectedCustomer;
+        public Customer? SelectedCustomer
         {
             get => _selectedCustomer;
             set

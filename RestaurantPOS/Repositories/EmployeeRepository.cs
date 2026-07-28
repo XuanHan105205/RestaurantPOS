@@ -15,7 +15,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override Employee GetById(int id)
+        public override Employee? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {
@@ -23,7 +23,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public Employee GetByUsername(string username)
+        public Employee? GetByUsername(string username)
         {
             using (var context = new RestaurantPOSDbContext())
             {

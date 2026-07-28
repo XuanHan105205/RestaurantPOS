@@ -15,7 +15,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override Ingredient GetById(int id)
+        public override Ingredient? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {
@@ -83,6 +83,10 @@ namespace RestaurantPOS.Repositories
                 foreach (var recipe in recipes)
                 {
                     var ingredient = context.Ingredients.Find(recipe.IngredientId);
+                    if (ingredient == null)
+                    {
+                        return false;
+                    }
                     ingredient.StockQuantity -= recipe.QuantityPerServing * quantity;
                     context.Ingredients.Update(ingredient);
                 }

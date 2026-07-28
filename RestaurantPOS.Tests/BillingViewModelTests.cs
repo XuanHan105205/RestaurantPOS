@@ -21,7 +21,7 @@ namespace RestaurantPOS.Tests
             SessionId = 1,
             Status = "open"
         };
-        public DiningSession OpenSessionForTable(int tableId, int employeeId, int? customerId) => null;
+        public DiningSession OpenSessionForTable(int tableId, int employeeId, int? customerId) => new DiningSession();
         public bool UpdateTableStatus(int tableId, string status) => true;
         public List<int> GetTableIdsBySessionId(int sessionId) => new List<int> { 1 };
     }
@@ -48,7 +48,7 @@ namespace RestaurantPOS.Tests
     {
         public List<Customer> GetAllCustomers() => new List<Customer>();
         public List<Customer> SearchCustomers(string keyword) => new List<Customer>();
-        public Customer GetCustomerByPhone(string phone) => null;
+        public Customer? GetCustomerByPhone(string phone) => null;
         public bool AddCustomer(Customer customer) => true;
         public bool UpdateCustomer(Customer customer) => true;
         public bool DeleteCustomer(int id) => true;
@@ -56,7 +56,7 @@ namespace RestaurantPOS.Tests
 
     public class FakeBillingInvoiceService : IInvoiceService
     {
-        public Invoice GetInvoiceBySessionId(int sessionId) => null;
+        public Invoice? GetInvoiceBySessionId(int sessionId) => null;
         public bool CreateInvoiceAndCloseSession(
             Invoice invoice,
             List<PaymentDetail> payments,

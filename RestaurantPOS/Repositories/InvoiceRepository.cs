@@ -17,7 +17,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override Invoice GetById(int id)
+        public override Invoice? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {
@@ -57,7 +57,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public Invoice GetBySessionId(int sessionId)
+        public Invoice? GetBySessionId(int sessionId)
         {
             using (var context = new RestaurantPOSDbContext())
             {

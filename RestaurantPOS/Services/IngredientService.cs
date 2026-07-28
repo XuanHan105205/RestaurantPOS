@@ -25,7 +25,7 @@ namespace RestaurantPOS.Services
             return _ingredientRepository.GetAll() ?? new List<Ingredient>();
         }
 
-        public Ingredient GetIngredientById(int id)
+        public Ingredient? GetIngredientById(int id)
         {
             return _ingredientRepository.GetById(id);
         }

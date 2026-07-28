@@ -6,7 +6,7 @@ namespace RestaurantPOS.Repositories
     public interface IRecipeRepository : IBaseRepository<Recipe>
     {
         List<Recipe> GetRecipesByDishId(int dishId);
-        Recipe GetRecipe(int dishId, int ingredientId);
+        Recipe? GetRecipe(int dishId, int ingredientId);
         bool DeleteRecipe(int dishId, int ingredientId);
     }
 }

@@ -16,15 +16,15 @@ namespace RestaurantPOS.ViewModels.Inventory
         private readonly IDishService _dishService;
         private readonly IDialogService _dialogService;
 
-        private List<Dish> _dishes;
+        private List<Dish> _dishes = new();
         public List<Dish> Dishes
         {
             get => _dishes;
             set => SetProperty(ref _dishes, value);
         }
 
-        private Dish _selectedDish;
-        public Dish SelectedDish
+        private Dish? _selectedDish;
+        public Dish? SelectedDish
         {
             get => _selectedDish;
             set
@@ -36,15 +36,15 @@ namespace RestaurantPOS.ViewModels.Inventory
             }
         }
 
-        private ObservableCollection<RecipeItemDto> _recipeItems;
+        private ObservableCollection<RecipeItemDto> _recipeItems = new();
         public ObservableCollection<RecipeItemDto> RecipeItems
         {
             get => _recipeItems;
             set => SetProperty(ref _recipeItems, value);
         }
 
-        private RecipeItemDto _selectedRecipeItem;
-        public RecipeItemDto SelectedRecipeItem
+        private RecipeItemDto? _selectedRecipeItem;
+        public RecipeItemDto? SelectedRecipeItem
         {
             get => _selectedRecipeItem;
             set
@@ -56,15 +56,15 @@ namespace RestaurantPOS.ViewModels.Inventory
             }
         }
 
-        private List<Ingredient> _ingredients;
+        private List<Ingredient> _ingredients = new();
         public List<Ingredient> Ingredients
         {
             get => _ingredients;
             set => SetProperty(ref _ingredients, value);
         }
 
-        private Ingredient _selectedIngredient;
-        public Ingredient SelectedIngredient
+        private Ingredient? _selectedIngredient;
+        public Ingredient? SelectedIngredient
         {
             get => _selectedIngredient;
             set => SetProperty(ref _selectedIngredient, value);
@@ -77,14 +77,14 @@ namespace RestaurantPOS.ViewModels.Inventory
             set => SetProperty(ref _quantityPerServing, value);
         }
 
-        private string _statusMessage;
+        private string _statusMessage = string.Empty;
         public string StatusMessage
         {
             get => _statusMessage;
             set => SetProperty(ref _statusMessage, value);
         }
 
-        private string _statusColor;
+        private string _statusColor = string.Empty;
         public string StatusColor
         {
             get => _statusColor;
@@ -268,8 +268,8 @@ namespace RestaurantPOS.ViewModels.Inventory
     {
         public int DishId { get; set; }
         public int IngredientId { get; set; }
-        public string IngredientName { get; set; }
-        public string Unit { get; set; }
+        public string IngredientName { get; set; } = string.Empty;
+        public string Unit { get; set; } = string.Empty;
         public decimal QuantityPerServing { get; set; }
     }
 }

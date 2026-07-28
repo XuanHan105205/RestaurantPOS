@@ -15,35 +15,35 @@ namespace RestaurantPOS.ViewModels.Kitchen
         private readonly IKitchenService _kitchenService;
         private readonly DispatcherTimer _timer;
 
-        private ObservableCollection<KitchenOrderItemDto> _pendingItems;
+        private ObservableCollection<KitchenOrderItemDto> _pendingItems = new();
         public ObservableCollection<KitchenOrderItemDto> PendingItems
         {
             get => _pendingItems;
             set => SetProperty(ref _pendingItems, value);
         }
 
-        private ObservableCollection<KitchenOrderItemDto> _cookingItems;
+        private ObservableCollection<KitchenOrderItemDto> _cookingItems = new();
         public ObservableCollection<KitchenOrderItemDto> CookingItems
         {
             get => _cookingItems;
             set => SetProperty(ref _cookingItems, value);
         }
 
-        private ObservableCollection<KitchenOrderItemDto> _readyItems;
+        private ObservableCollection<KitchenOrderItemDto> _readyItems = new();
         public ObservableCollection<KitchenOrderItemDto> ReadyItems
         {
             get => _readyItems;
             set => SetProperty(ref _readyItems, value);
         }
 
-        private ObservableCollection<KitchenOrderItemDto> _servedItems;
+        private ObservableCollection<KitchenOrderItemDto> _servedItems = new();
         public ObservableCollection<KitchenOrderItemDto> ServedItems
         {
             get => _servedItems;
             set => SetProperty(ref _servedItems, value);
         }
 
-        private string _lastUpdatedText;
+        private string _lastUpdatedText = string.Empty;
         public string LastUpdatedText
         {
             get => _lastUpdatedText;

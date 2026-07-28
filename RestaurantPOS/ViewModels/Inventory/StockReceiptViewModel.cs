@@ -15,22 +15,22 @@ namespace RestaurantPOS.ViewModels.Inventory
         private readonly IIngredientService _ingredientService;
         private readonly IEmployeeService _employeeService;
 
-        private ObservableCollection<StockReceiptDto> _receipts;
+        private ObservableCollection<StockReceiptDto> _receipts = new();
         public ObservableCollection<StockReceiptDto> Receipts
         {
             get => _receipts;
             set => SetProperty(ref _receipts, value);
         }
 
-        private List<Ingredient> _ingredients;
+        private List<Ingredient> _ingredients = new();
         public List<Ingredient> Ingredients
         {
             get => _ingredients;
             set => SetProperty(ref _ingredients, value);
         }
 
-        private Ingredient _selectedIngredient;
-        public Ingredient SelectedIngredient
+        private Ingredient? _selectedIngredient;
+        public Ingredient? SelectedIngredient
         {
             get => _selectedIngredient;
             set => SetProperty(ref _selectedIngredient, value);
@@ -50,21 +50,21 @@ namespace RestaurantPOS.ViewModels.Inventory
             set => SetProperty(ref _unitCost, value);
         }
 
-        private string _supplier;
+        private string _supplier = string.Empty;
         public string Supplier
         {
             get => _supplier;
             set => SetProperty(ref _supplier, value);
         }
 
-        private string _statusMessage;
+        private string _statusMessage = string.Empty;
         public string StatusMessage
         {
             get => _statusMessage;
             set => SetProperty(ref _statusMessage, value);
         }
 
-        private string _statusColor;
+        private string _statusColor = string.Empty;
         public string StatusColor
         {
             get => _statusColor;
@@ -192,13 +192,13 @@ namespace RestaurantPOS.ViewModels.Inventory
     public class StockReceiptDto
     {
         public int ReceiptId { get; set; }
-        public string IngredientName { get; set; }
-        public string Unit { get; set; }
+        public string IngredientName { get; set; } = string.Empty;
+        public string Unit { get; set; } = string.Empty;
         public decimal Quantity { get; set; }
         public decimal? UnitCost { get; set; }
         public decimal? TotalCost => Quantity * UnitCost;
         public DateTime ReceivedAt { get; set; }
-        public string ReceivedByEmployeeName { get; set; }
-        public string Supplier { get; set; }
+        public string ReceivedByEmployeeName { get; set; } = string.Empty;
+        public string Supplier { get; set; } = string.Empty;
     }
 }

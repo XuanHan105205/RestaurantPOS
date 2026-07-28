@@ -5,10 +5,10 @@ namespace RestaurantPOS.Services
 {
     public class AuthService : IAuthService
     {
-        private static AuthService _instance;
+        private static AuthService? _instance;
         public static AuthService Instance => _instance ??= new AuthService();
 
-        public Employee CurrentUser { get; private set; }
+        public Employee? CurrentUser { get; private set; }
 
         private readonly IEmployeeRepository _employeeRepository;
 

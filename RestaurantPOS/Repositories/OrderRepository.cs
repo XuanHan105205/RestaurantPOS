@@ -16,7 +16,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override Order GetById(int id)
+        public override Order? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {

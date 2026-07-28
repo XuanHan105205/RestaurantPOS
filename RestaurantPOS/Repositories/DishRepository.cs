@@ -15,7 +15,7 @@ namespace RestaurantPOS.Repositories
             }
         }
 
-        public override Dish GetById(int id)
+        public override Dish? GetById(int id)
         {
             using (var context = new RestaurantPOSDbContext())
             {

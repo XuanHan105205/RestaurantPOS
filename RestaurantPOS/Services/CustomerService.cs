@@ -41,7 +41,7 @@ namespace RestaurantPOS.Services
                 .ToList();
         }
 
-        public Customer GetCustomerByPhone(string phone)
+        public Customer? GetCustomerByPhone(string phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
             {

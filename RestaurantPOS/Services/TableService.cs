@@ -18,7 +18,7 @@ namespace RestaurantPOS.Services
             return _tableRepository.GetAll();
         }
 
-        public DiningSession GetActiveSessionByTableId(int tableId)
+        public DiningSession? GetActiveSessionByTableId(int tableId)
         {
             return _tableRepository.GetActiveSessionByTableId(tableId);
         }
