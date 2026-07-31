@@ -25,12 +25,18 @@ namespace RestaurantPOS.Services
 
         public DiningSession OpenSessionForTable(int tableId, int employeeId, int? customerId)
         {
-            return _tableRepository.OpenSessionForTable(tableId, employeeId, customerId);
+            var session = _tableRepository.OpenSessionForTable(tableId, employeeId, customerId);
+            AuditTrail.Record("open_session", "dining_session", session.SessionId,
+                $"Mở bàn #{tableId}; khách hàng #{customerId?.ToString() ?? "vãng lai"}.", employeeId);
+            return session;
         }
 
         public bool UpdateTableStatus(int tableId, string status)
         {
-            return _tableRepository.UpdateTableStatus(tableId, status);
+            bool success = _tableRepository.UpdateTableStatus(tableId, status);
+            if (success)
+                AuditTrail.Record("update_status", "table", tableId, $"Chuyển trạng thái bàn thành {status}.");
+            return success;
         }
 
         public List<int> GetTableIdsBySessionId(int sessionId)

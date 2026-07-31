@@ -48,12 +48,11 @@ namespace RestaurantPOS.ViewModels.Core
             CurrentEmployeeRole == "MANAGER" || CurrentEmployeeRole == "WAITER";
         public bool IsKitchenVisible =>
             CurrentEmployeeRole == "MANAGER" || CurrentEmployeeRole == "KITCHEN";
-        public bool IsInventoryVisible =>
-            CurrentEmployeeRole == "MANAGER" || CurrentEmployeeRole == "INVENTORY";
+        public bool IsInventoryVisible => CurrentEmployeeRole == "MANAGER";
         public bool IsBillingVisible =>
             CurrentEmployeeRole == "MANAGER" || CurrentEmployeeRole == "CASHIER";
         public bool IsCustomerVisible => CurrentEmployeeRole == "MANAGER";
-        public bool IsExtendedVisible => CurrentEmployeeRole is "MANAGER" or "WAITER" or "INVENTORY" or "CASHIER";
+        public bool IsExtendedVisible => CurrentEmployeeRole == "MANAGER";
 
         public ICommand NavigateWaiterCommand { get; }
         public ICommand NavigateKitchenCommand { get; }
@@ -104,9 +103,6 @@ namespace RestaurantPOS.ViewModels.Core
                     break;
                 case "kitchen":
                     Navigation.CurrentViewModel = new KitchenViewModel();
-                    break;
-                case "inventory":
-                    Navigation.CurrentViewModel = _inventoryFactory.Create();
                     break;
                 case "cashier":
                     Navigation.CurrentViewModel = new BillingViewModel();

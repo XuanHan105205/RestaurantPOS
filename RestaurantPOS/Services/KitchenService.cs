@@ -54,7 +54,10 @@ namespace RestaurantPOS.Services
 
             if (newStatus == "ready" && _orderItemRepository is OrderItemRepository concreteRepository)
             {
-                return concreteRepository.TryMarkReadyAndDeductStock(orderItemId, AuthService.Instance.CurrentUser?.EmployeeId);
+                bool markedReady = concreteRepository.TryMarkReadyAndDeductStock(orderItemId, AuthService.Instance.CurrentUser?.EmployeeId);
+                if (markedReady)
+                    AuditTrail.Record("update_status", "order_item", orderItemId, $"Chuyển món từ {oldStatus} sang {newStatus}.");
+                return markedReady;
             }
 
             item.Status = newStatus;
@@ -71,6 +74,8 @@ namespace RestaurantPOS.Services
                     return false;
                 }
             }
+            if (success)
+                AuditTrail.Record("update_status", "order_item", orderItemId, $"Chuyển món từ {oldStatus} sang {newStatus}.");
             return success;
         }
     }

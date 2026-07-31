@@ -59,7 +59,34 @@ namespace RestaurantPOS.ViewModels.Waiter
         public string CustomerPhoneSearch
         {
             get => _customerPhoneSearch;
-            set => SetProperty(ref _customerPhoneSearch, value);
+            set
+            {
+                value ??= "";
+                if (SetProperty(ref _customerPhoneSearch, value))
+                {
+                    if (SelectedCustomer?.Phone != value.Trim())
+                    {
+                        SelectedCustomer = null;
+                    }
+                    IsQuickRegistrationVisible = false;
+                    QuickCustomerName = "";
+                    CustomerSearchResultMessage = "";
+                }
+            }
+        }
+
+        private string _quickCustomerName = "";
+        public string QuickCustomerName
+        {
+            get => _quickCustomerName;
+            set => SetProperty(ref _quickCustomerName, value);
+        }
+
+        private bool _isQuickRegistrationVisible;
+        public bool IsQuickRegistrationVisible
+        {
+            get => _isQuickRegistrationVisible;
+            set => SetProperty(ref _isQuickRegistrationVisible, value);
         }
 
         private string _customerSearchResultMessage = "";
@@ -99,6 +126,7 @@ namespace RestaurantPOS.ViewModels.Waiter
 
         public ICommand LoadTablesCommand { get; }
         public ICommand SearchCustomerCommand { get; }
+        public ICommand RegisterCustomerCommand { get; }
         public ICommand OpenSessionCommand { get; }
         public ICommand CleanTableCommand { get; }
         public ICommand GoToOrderCommand { get; }
@@ -126,6 +154,7 @@ namespace RestaurantPOS.ViewModels.Waiter
 
             LoadTablesCommand = new RelayCommand(LoadTables);
             SearchCustomerCommand = new RelayCommand(SearchCustomer);
+            RegisterCustomerCommand = new RelayCommand(RegisterCustomer);
             OpenSessionCommand = new RelayCommand(OpenSession);
             CleanTableCommand = new RelayCommand(CleanTable);
             GoToOrderCommand = new RelayCommand(GoToOrder);
@@ -192,6 +221,8 @@ namespace RestaurantPOS.ViewModels.Waiter
                 IsSessionInfoVisible = false;
                 CustomerPhoneSearch = "";
                 CustomerSearchResultMessage = "";
+                QuickCustomerName = "";
+                IsQuickRegistrationVisible = false;
             }
         }
 
@@ -200,6 +231,7 @@ namespace RestaurantPOS.ViewModels.Waiter
             if (string.IsNullOrWhiteSpace(CustomerPhoneSearch))
             {
                 CustomerSearchResultMessage = "Vui lòng nhập SĐT";
+                IsQuickRegistrationVisible = false;
                 return;
             }
 
@@ -208,12 +240,43 @@ namespace RestaurantPOS.ViewModels.Waiter
             {
                 SelectedCustomer = customer;
                 CustomerSearchResultMessage = $"Tìm thấy: {customer.FullName} ({customer.MembershipTier})";
+                IsQuickRegistrationVisible = false;
             }
             else
             {
                 SelectedCustomer = null;
-                CustomerSearchResultMessage = "Không tìm thấy khách hàng. Bàn sẽ mở dưới dạng Khách vãng lai.";
+                CustomerSearchResultMessage = "Chưa có khách hàng này. Nhập tên để đăng ký tích điểm hoặc bỏ trống để mở bàn vãng lai.";
+                IsQuickRegistrationVisible = true;
             }
+        }
+
+        private void RegisterCustomer()
+        {
+            string phone = CustomerPhoneSearch.Trim();
+            string fullName = QuickCustomerName.Trim();
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                CustomerSearchResultMessage = "Vui lòng nhập tên khách hàng.";
+                return;
+            }
+
+            var customer = new Customer
+            {
+                FullName = fullName,
+                Phone = phone,
+                MembershipTier = "regular",
+                LoyaltyPoints = 0
+            };
+
+            if (!_customerService.AddCustomer(customer))
+            {
+                CustomerSearchResultMessage = "Không thể đăng ký. SĐT phải gồm 9–15 chữ số và chưa được sử dụng.";
+                return;
+            }
+
+            SelectedCustomer = _customerService.GetCustomerByPhone(phone) ?? customer;
+            IsQuickRegistrationVisible = false;
+            CustomerSearchResultMessage = $"Đã đăng ký và chọn khách: {SelectedCustomer.FullName}.";
         }
 
         private void OpenSession()
