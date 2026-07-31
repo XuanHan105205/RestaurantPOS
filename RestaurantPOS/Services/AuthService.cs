@@ -31,8 +31,13 @@ namespace RestaurantPOS.Services
             }
 
             var employee = _employeeRepository.GetByUsername(username.Trim());
-            if (employee != null && employee.IsActive && employee.PasswordHash == password)
+            if (employee != null && employee.IsActive && PasswordSecurity.Verify(password, employee.PasswordHash))
             {
+                if (PasswordSecurity.IsLegacy(employee.PasswordHash))
+                {
+                    employee.PasswordHash = PasswordSecurity.Hash(password);
+                    _employeeRepository.Update(employee);
+                }
                 CurrentUser = employee;
                 return true;
             }

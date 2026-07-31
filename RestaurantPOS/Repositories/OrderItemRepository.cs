@@ -161,5 +161,34 @@ namespace RestaurantPOS.Repositories
                 }).OrderByDescending(x => x.StatusUpdatedAt).ToList();
             }
         }
+
+        public bool TryMarkReadyAndDeductStock(int orderItemId, int? employeeId)
+        {
+            using var context = new RestaurantPOSDbContext();
+            using var transaction = context.Database.BeginTransaction();
+            var item = context.OrderItems.Find(orderItemId);
+            if (item == null || item.Status != "cooking") return false;
+            var recipes = context.Recipes.Where(r => r.DishId == item.DishId).ToList();
+            if (recipes.Count == 0) return false;
+            foreach (var recipe in recipes)
+            {
+                var ingredient = context.Ingredients.Find(recipe.IngredientId);
+                decimal required = recipe.QuantityPerServing * item.Quantity;
+                if (ingredient == null || ingredient.StockQuantity < required) return false;
+            }
+            foreach (var recipe in recipes)
+            {
+                var ingredient = context.Ingredients.Find(recipe.IngredientId)!;
+                decimal before = ingredient.StockQuantity;
+                decimal required = recipe.QuantityPerServing * item.Quantity;
+                ingredient.StockQuantity -= required;
+                context.StockMovements.Add(new StockMovement { IngredientId = ingredient.IngredientId,
+                    MovementType = "sale", Quantity = required, QuantityBefore = before,
+                    QuantityAfter = ingredient.StockQuantity, ReferenceId = item.OrderItemId,
+                    EmployeeId = employeeId, Reason = $"Hoàn thành món #{item.OrderItemId}", CreatedAt = DateTime.Now });
+            }
+            item.Status = "ready"; item.StatusUpdatedAt = DateTime.Now;
+            context.SaveChanges(); transaction.Commit(); return true;
+        }
     }
 }

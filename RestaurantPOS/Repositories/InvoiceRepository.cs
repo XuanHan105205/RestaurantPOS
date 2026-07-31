@@ -79,6 +79,8 @@ namespace RestaurantPOS.Repositories
                 {
                     try
                     {
+                        if (context.Invoices.Any(i => i.SessionId == invoice.SessionId))
+                            return false;
                         // 1. Add Invoice
                         invoice.PaidAt = DateTime.Now;
                         context.Invoices.Add(invoice);

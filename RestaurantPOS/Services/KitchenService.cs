@@ -52,6 +52,11 @@ namespace RestaurantPOS.Services
                 return false;
             }
 
+            if (newStatus == "ready" && _orderItemRepository is OrderItemRepository concreteRepository)
+            {
+                return concreteRepository.TryMarkReadyAndDeductStock(orderItemId, AuthService.Instance.CurrentUser?.EmployeeId);
+            }
+
             item.Status = newStatus;
             item.StatusUpdatedAt = DateTime.Now;
 

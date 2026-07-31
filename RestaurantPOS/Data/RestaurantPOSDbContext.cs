@@ -21,6 +21,9 @@ namespace RestaurantPOS.Data
         public DbSet<StockReceipt> StockReceipts { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<PaymentDetail> PaymentDetails { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<StockMovement> StockMovements { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -52,6 +55,7 @@ namespace RestaurantPOS.Data
                 entity.Property(e => e.Role).HasColumnName("role").IsRequired();
                 entity.Property(e => e.Phone).HasColumnName("phone");
                 entity.Property(e => e.IsActive).HasColumnName("is_active").IsRequired();
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
             });
 
             // 2. Map Customer
@@ -76,6 +80,7 @@ namespace RestaurantPOS.Data
                 entity.Property(t => t.Capacity).HasColumnName("capacity");
                 entity.Property(t => t.Status).HasColumnName("status").IsRequired();
                 entity.Property(t => t.Area).HasColumnName("area");
+                entity.Property(t => t.IsActive).HasColumnName("is_active").IsRequired();
             });
 
             // 4. Map DiningSession
@@ -196,6 +201,55 @@ namespace RestaurantPOS.Data
                 entity.Property(inv => inv.TotalAmount).HasColumnName("total_amount").IsRequired();
                 entity.Property(inv => inv.PaidAt).HasColumnName("paid_at").IsRequired();
                 entity.Property(inv => inv.CashierEmployeeId).HasColumnName("cashier_employee_id");
+                entity.Property(inv => inv.InvoiceNumber).HasColumnName("invoice_number").IsRequired();
+                entity.Property(inv => inv.Status).HasColumnName("status").IsRequired();
+                entity.Property(inv => inv.CancelledAt).HasColumnName("cancelled_at");
+                entity.Property(inv => inv.CancelledByEmployeeId).HasColumnName("cancelled_by_employee_id");
+                entity.Property(inv => inv.CancellationReason).HasColumnName("cancellation_reason");
+            });
+
+            modelBuilder.Entity<Reservation>(entity =>
+            {
+                entity.ToTable("reservations");
+                entity.HasKey(r => r.ReservationId);
+                entity.Property(r => r.ReservationId).HasColumnName("reservation_id");
+                entity.Property(r => r.CustomerId).HasColumnName("customer_id");
+                entity.Property(r => r.TableId).HasColumnName("table_id");
+                entity.Property(r => r.ReservationTime).HasColumnName("reservation_time");
+                entity.Property(r => r.GuestCount).HasColumnName("guest_count");
+                entity.Property(r => r.Status).HasColumnName("status");
+                entity.Property(r => r.Note).HasColumnName("note");
+                entity.Property(r => r.CreatedByEmployeeId).HasColumnName("created_by_employee_id");
+                entity.Property(r => r.CreatedAt).HasColumnName("created_at");
+            });
+
+            modelBuilder.Entity<StockMovement>(entity =>
+            {
+                entity.ToTable("stock_movements");
+                entity.HasKey(m => m.MovementId);
+                entity.Property(m => m.MovementId).HasColumnName("movement_id");
+                entity.Property(m => m.IngredientId).HasColumnName("ingredient_id");
+                entity.Property(m => m.MovementType).HasColumnName("movement_type");
+                entity.Property(m => m.Quantity).HasColumnName("quantity");
+                entity.Property(m => m.QuantityBefore).HasColumnName("quantity_before");
+                entity.Property(m => m.QuantityAfter).HasColumnName("quantity_after");
+                entity.Property(m => m.Reason).HasColumnName("reason");
+                entity.Property(m => m.ReferenceId).HasColumnName("reference_id");
+                entity.Property(m => m.EmployeeId).HasColumnName("employee_id");
+                entity.Property(m => m.CreatedAt).HasColumnName("created_at");
+            });
+
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.ToTable("audit_logs");
+                entity.HasKey(a => a.AuditLogId);
+                entity.Property(a => a.AuditLogId).HasColumnName("audit_log_id");
+                entity.Property(a => a.EmployeeId).HasColumnName("employee_id");
+                entity.Property(a => a.Action).HasColumnName("action");
+                entity.Property(a => a.EntityType).HasColumnName("entity_type");
+                entity.Property(a => a.EntityId).HasColumnName("entity_id");
+                entity.Property(a => a.Description).HasColumnName("description");
+                entity.Property(a => a.CreatedAt).HasColumnName("created_at");
             });
 
             // 14. Map PaymentDetail

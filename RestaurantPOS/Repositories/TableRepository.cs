@@ -75,6 +75,10 @@ namespace RestaurantPOS.Repositories
                 {
                     try
                     {
+                        var table = context.RestaurantTables.Find(tableId);
+                        if (table == null || !table.IsActive || table.Status != "available" ||
+                            GetActiveSessionByTableId(tableId) != null)
+                            throw new InvalidOperationException("Bàn không sẵn sàng hoặc đã có phiên đang mở.");
                         var session = new DiningSession
                         {
                             OpenedAt = DateTime.Now,
@@ -92,12 +96,8 @@ namespace RestaurantPOS.Repositories
                         };
                         context.TableSessions.Add(tableSession);
 
-                        var table = context.RestaurantTables.Find(tableId);
-                        if (table != null)
-                        {
-                            table.Status = "occupied";
-                            context.RestaurantTables.Update(table);
-                        }
+                        table.Status = "occupied";
+                        context.RestaurantTables.Update(table);
 
                         context.SaveChanges();
                         transaction.Commit();

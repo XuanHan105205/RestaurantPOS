@@ -11,5 +11,10 @@ namespace RestaurantPOS.Models
         public decimal TotalAmount { get; set; }
         public DateTime PaidAt { get; set; }
         public int? CashierEmployeeId { get; set; }
+        public string InvoiceNumber { get; set; } = string.Empty;
+        public string Status { get; set; } = "paid";
+        public DateTime? CancelledAt { get; set; }
+        public int? CancelledByEmployeeId { get; set; }
+        public string? CancellationReason { get; set; }
     }
 }
