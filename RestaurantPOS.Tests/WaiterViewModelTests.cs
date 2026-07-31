@@ -33,7 +33,12 @@ namespace RestaurantPOS.Tests
         public List<Customer> GetAllCustomers() => new(Customers);
         public List<Customer> SearchCustomers(string keyword) => new(Customers);
         public Customer? GetCustomerByPhone(string phone) => Customers.Find(c => c.Phone == phone);
-        public bool AddCustomer(Customer customer) => true;
+        public bool AddCustomer(Customer customer)
+        {
+            customer.CustomerId = Customers.Count + 1;
+            Customers.Add(customer);
+            return true;
+        }
         public bool UpdateCustomer(Customer customer) => true;
         public bool DeleteCustomer(int id) => true;
     }
@@ -118,6 +123,24 @@ namespace RestaurantPOS.Tests
 
             Assert.NotNull(viewModel.SelectedCustomer);
             Assert.Equal("Nguyễn Thị Hoa", viewModel.SelectedCustomer.FullName);
+        }
+
+        [Fact]
+        public void RegisterCustomer_AfterPhoneNotFound_SelectsNewCustomer()
+        {
+            var customerService = new FakeWaiterCustomerService();
+            var viewModel = CreateTableViewModel(new FakeWaiterTableService(), customerService);
+            viewModel.CustomerPhoneSearch = "0912345678";
+            viewModel.SearchCustomerCommand.Execute(null);
+
+            Assert.True(viewModel.IsQuickRegistrationVisible);
+
+            viewModel.QuickCustomerName = "Nguyễn Văn An";
+            viewModel.RegisterCustomerCommand.Execute(null);
+
+            Assert.False(viewModel.IsQuickRegistrationVisible);
+            Assert.Equal("Nguyễn Văn An", viewModel.SelectedCustomer?.FullName);
+            Assert.Single(customerService.Customers);
         }
 
         [Fact]

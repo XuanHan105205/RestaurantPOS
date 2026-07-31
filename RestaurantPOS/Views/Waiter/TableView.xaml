@@ -219,6 +219,19 @@
                                 <!-- Kết quả tìm kiếm khách hàng -->
                                 <TextBlock Text="{Binding CustomerSearchResultMessage}" FontSize="12" TextWrapping="Wrap" Foreground="#4A5568" Margin="0,0,0,15"/>
 
+                                <!-- Đăng ký nhanh chỉ hiện khi số điện thoại chưa tồn tại -->
+                                <Border Background="#FFF8E1" BorderBrush="#F6C453" BorderThickness="1" Padding="10" CornerRadius="6" Margin="0,0,0,15"
+                                        Visibility="{Binding IsQuickRegistrationVisible, Converter={StaticResource BoolToVis}}">
+                                    <StackPanel>
+                                        <TextBlock Text="ĐĂNG KÝ TÍCH ĐIỂM NHANH" FontSize="12" FontWeight="Bold" Foreground="#8A5A00" Margin="0,0,0,7"/>
+                                        <TextBlock Text="Tên khách hàng *" FontSize="11" Foreground="#4A5568" Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding QuickCustomerName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="8" Height="34" VerticalContentAlignment="Center" BorderBrush="#D6B656" Margin="0,0,0,8"/>
+                                        <Button Content="ĐĂNG KÝ &amp; CHỌN KHÁCH" Command="{Binding RegisterCustomerCommand}"
+                                                Background="#D69E2E" Foreground="White" Height="34" FontWeight="Bold" Cursor="Hand"/>
+                                    </StackPanel>
+                                </Border>
+
                                 <Border Background="#EDF2F7" Padding="12" CornerRadius="8" Margin="0,0,0,20">
                                     <StackPanel>
                                         <TextBlock Text="Thông tin khách đặt bàn:" FontSize="11" Foreground="#718096" FontWeight="Bold"/>

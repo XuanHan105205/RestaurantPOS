@@ -67,7 +67,10 @@ namespace RestaurantPOS.Services
             }
 
             UpdateMembershipTier(customer);
-            return _customerRepository.Add(customer);
+            bool success = _customerRepository.Add(customer);
+            if (success)
+                AuditTrail.Record("create", "customer", customer.CustomerId, $"Đăng ký khách hàng {customer.FullName} ({customer.Phone}).");
+            return success;
         }
 
         public bool UpdateCustomer(Customer customer)

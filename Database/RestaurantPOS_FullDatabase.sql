@@ -302,7 +302,8 @@ INSERT INTO ingredients (ingredient_name, unit, stock_quantity, min_stock_alert)
 (N'Đào ngâm', N'hộp', 0, 5),
 (N'Cam tươi', N'kg', 0, 5),
 (N'Sả', N'bó', 0, 5),
-(N'Bột rau câu', N'gói', 0, 10);
+(N'Bột rau câu', N'gói', 0, 10),
+(N'Nước ngọt lon', N'lon', 0, 12);
 GO
 
 -- 2. Nhập kho nguyên liệu (Tạo phiếu nhập hàng mẫu)
@@ -327,7 +328,8 @@ INSERT INTO stock_receipts (ingredient_id, quantity, unit_cost, received_by_empl
 (17, 10, 35000, 1, N'Siêu thị Bách Hóa Xanh'),
 (18, 8, 25000, 1, N'Chợ đầu mối Bình Điền'),
 (19, 10, 8000, 1, N'Chợ đầu mối Bình Điền'),
-(20, 15, 15000, 1, N'Siêu thị Bách Hóa Xanh');
+(20, 15, 15000, 1, N'Siêu thị Bách Hóa Xanh'),
+(21, 48, 10000, 1, N'Nhà phân phối nước giải khát');
 GO
 
 -- Cập nhật tồn kho theo phiếu nhập (mô phỏng hệ thống tự động cộng dồn)
@@ -351,6 +353,7 @@ UPDATE ingredients SET stock_quantity = 10 WHERE ingredient_id = 17;  -- Đào n
 UPDATE ingredients SET stock_quantity = 8  WHERE ingredient_id = 18;  -- Cam tươi
 UPDATE ingredients SET stock_quantity = 10 WHERE ingredient_id = 19;  -- Sả
 UPDATE ingredients SET stock_quantity = 15 WHERE ingredient_id = 20;  -- Bột rau câu
+UPDATE ingredients SET stock_quantity = 48 WHERE ingredient_id = 21;  -- Nước ngọt lon
 GO
 
 -- 3. Tạo công thức định lượng mẫu cho các món ăn
@@ -395,6 +398,10 @@ INSERT INTO recipes (dish_id, ingredient_id, quantity_per_serving) VALUES
 (5, 17, 0.30),  -- Đào ngâm 0.3 hộp
 (5, 18, 0.10),  -- Cam tươi 100g
 (5, 19, 0.20);  -- Sả 0.2 bó
+
+-- Món 6: Nước ngọt lon (dish_id = 6)
+INSERT INTO recipes (dish_id, ingredient_id, quantity_per_serving) VALUES
+(6, 21, 1.00);  -- 1 lon cho mỗi phần
 
 -- Món 7: Rau câu trái dừa (dish_id = 7)
 INSERT INTO recipes (dish_id, ingredient_id, quantity_per_serving) VALUES

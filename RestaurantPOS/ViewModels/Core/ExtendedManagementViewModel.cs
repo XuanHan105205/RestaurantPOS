@@ -12,7 +12,7 @@ namespace RestaurantPOS.ViewModels.Core
         private readonly AcademicManagementService _service = new();
         public bool IsManager => AuthService.Instance.CurrentUser?.Role == "manager";
         public bool CanManageReservations => IsManager || AuthService.Instance.CurrentUser?.Role == "waiter";
-        public bool CanManageStock => IsManager || AuthService.Instance.CurrentUser?.Role == "inventory";
+        public bool CanManageStock => IsManager;
         public bool CanViewInvoices => IsManager || AuthService.Instance.CurrentUser?.Role == "cashier";
 
         public ObservableCollection<Employee> Employees { get; } = new();
@@ -25,7 +25,7 @@ namespace RestaurantPOS.ViewModels.Core
         public ObservableCollection<StockMovement> StockMovements { get; } = new();
         public ObservableCollection<Invoice> Invoices { get; } = new();
         public ObservableCollection<AuditLog> AuditLogs { get; } = new();
-        public string[] Roles { get; } = { "manager", "waiter", "kitchen", "cashier", "inventory" };
+        public string[] Roles { get; } = { "manager", "waiter", "kitchen", "cashier" };
         public string[] DishStatuses { get; } = { "active", "discontinued" };
 
         private Employee? _selectedEmployee;

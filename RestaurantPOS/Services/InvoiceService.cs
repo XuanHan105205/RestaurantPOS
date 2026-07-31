@@ -26,13 +26,17 @@ namespace RestaurantPOS.Services
             Customer? customer, 
             int loyaltyPointsEarned)
         {
-            return _invoiceRepository.CreateInvoiceAndCloseSession(
+            bool success = _invoiceRepository.CreateInvoiceAndCloseSession(
                 invoice, 
                 payments, 
                 tableIds, 
                 nextTableStatus, 
                 customer, 
                 loyaltyPointsEarned);
+            if (success)
+                AuditTrail.Record("checkout", "invoice", invoice.InvoiceId,
+                    $"Thanh toán {invoice.InvoiceNumber}, tổng tiền {invoice.TotalAmount:N0}đ.", invoice.CashierEmployeeId);
+            return success;
         }
     }
 }

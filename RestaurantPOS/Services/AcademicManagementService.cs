@@ -5,7 +5,7 @@ namespace RestaurantPOS.Services
 {
     public class AcademicManagementService
     {
-        private static readonly string[] Roles = { "manager", "waiter", "kitchen", "cashier", "inventory" };
+        private static readonly string[] Roles = { "manager", "waiter", "kitchen", "cashier" };
         private readonly AcademicManagementRepository _repository = new();
         private int? CurrentEmployeeId => AuthService.Instance.CurrentUser?.EmployeeId;
 
@@ -46,7 +46,7 @@ namespace RestaurantPOS.Services
         {
             if (!IsRole("manager")) return (false, "Chỉ manager được quản lý thực đơn.");
             if (string.IsNullOrWhiteSpace(category.CategoryName)) return (false, "Tên danh mục không được trống.");
-            try { bool ok = _repository.SaveCategory(category); return (ok, ok ? "Đã lưu danh mục." : "Không có thay đổi."); }
+            try { bool ok = _repository.SaveCategory(category); if (ok) Audit("save", "category", category.CategoryId, category.CategoryName); return (ok, ok ? "Đã lưu danh mục." : "Không có thay đổi."); }
             catch { return (false, "Tên danh mục đã tồn tại."); }
         }
 
@@ -63,7 +63,7 @@ namespace RestaurantPOS.Services
         {
             if (!IsRole("manager")) return (false, "Chỉ manager được quản lý bàn.");
             if (string.IsNullOrWhiteSpace(table.TableName) || table.Capacity is null or <= 0) return (false, "Tên bàn và sức chứa không hợp lệ.");
-            try { bool ok = _repository.SaveTable(table); return (ok, ok ? "Đã lưu bàn." : "Không có thay đổi."); }
+            try { bool ok = _repository.SaveTable(table); if (ok) Audit("save", "table", table.TableId, table.TableName); return (ok, ok ? "Đã lưu bàn." : "Không có thay đổi."); }
             catch { return (false, "Tên bàn đã tồn tại hoặc dữ liệu không hợp lệ."); }
         }
 
@@ -76,7 +76,7 @@ namespace RestaurantPOS.Services
             if (table == null || !table.IsActive || reservation.GuestCount > table.Capacity) return (false, "Bàn không hoạt động hoặc không đủ sức chứa.");
             if (_repository.HasReservationConflict(reservation.TableId, reservation.ReservationTime, reservation.ReservationId)) return (false, "Bàn đã có lịch trong khoảng ±2 giờ.");
             reservation.CreatedByEmployeeId = CurrentEmployeeId ?? 0;
-            try { bool ok = _repository.SaveReservation(reservation); return (ok, ok ? "Đã lưu đặt bàn." : "Không có thay đổi."); }
+            try { bool ok = _repository.SaveReservation(reservation); if (ok) Audit("save", "reservation", reservation.ReservationId, $"Bàn #{reservation.TableId}"); return (ok, ok ? "Đã lưu đặt bàn." : "Không có thay đổi."); }
             catch { return (false, "Không thể lưu đặt bàn."); }
         }
 
@@ -92,7 +92,7 @@ namespace RestaurantPOS.Services
 
         public (bool Success, string Message) AdjustStock(int ingredientId, decimal quantity, bool increase, bool waste, string reason)
         {
-            if (!IsRole("manager", "inventory")) return (false, "Bạn không có quyền điều chỉnh kho.");
+            if (!IsRole("manager")) return (false, "Bạn không có quyền điều chỉnh kho.");
             if (ingredientId <= 0 || quantity <= 0 || string.IsNullOrWhiteSpace(reason)) return (false, "Chọn nguyên liệu, nhập số lượng và lý do.");
             string type = increase ? "adjustment_in" : waste ? "waste" : "adjustment_out";
             bool ok = _repository.AdjustStock(ingredientId, increase ? quantity : -quantity, type, reason.Trim(), CurrentEmployeeId);

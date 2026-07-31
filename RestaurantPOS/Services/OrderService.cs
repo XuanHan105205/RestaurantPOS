@@ -32,17 +32,28 @@ namespace RestaurantPOS.Services
         public bool PlaceOrder(int sessionId, int employeeId, List<OrderItem> items)
         {
             if (items == null || items.Count == 0) return false;
-            return _orderRepository.CreateOrderWithItems(sessionId, employeeId, items);
+            bool success = _orderRepository.CreateOrderWithItems(sessionId, employeeId, items);
+            if (success)
+                AuditTrail.Record("place_order", "dining_session", sessionId,
+                    $"Gọi {items.Count} món, tổng số lượng {items.Sum(item => item.Quantity)}.", employeeId);
+            return success;
         }
 
         public bool UpdateOrderItem(OrderItem item)
         {
-            return _orderRepository.UpdateOrderItem(item);
+            bool success = _orderRepository.UpdateOrderItem(item);
+            if (success)
+                AuditTrail.Record("update_order_item", "order_item", item.OrderItemId,
+                    $"Cập nhật số lượng thành {item.Quantity}.");
+            return success;
         }
 
         public bool DeleteOrderItem(int orderItemId)
         {
-            return _orderRepository.DeleteOrderItem(orderItemId);
+            bool success = _orderRepository.DeleteOrderItem(orderItemId);
+            if (success)
+                AuditTrail.Record("cancel_order_item", "order_item", orderItemId, "Hủy món chưa chế biến.");
+            return success;
         }
     }
 }

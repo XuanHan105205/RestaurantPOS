@@ -14,7 +14,7 @@ JOIN sys.columns c ON c.object_id = cc.parent_object_id AND c.column_id = cc.par
 WHERE cc.parent_object_id = OBJECT_ID('employees') AND c.name = 'role';
 IF @employeeRoleConstraint IS NOT NULL EXEC('ALTER TABLE employees DROP CONSTRAINT [' + @employeeRoleConstraint + ']');
 ALTER TABLE employees ADD CONSTRAINT CK_employees_role
-CHECK (role IN ('waiter', 'kitchen', 'cashier', 'manager', 'inventory'));
+CHECK (role IN ('waiter', 'kitchen', 'cashier', 'manager'));
 GO
 
 IF COL_LENGTH('restaurant_tables', 'is_active') IS NULL
@@ -34,6 +34,8 @@ IF COL_LENGTH('invoices', 'cancelled_at') IS NULL ALTER TABLE invoices ADD cance
 IF COL_LENGTH('invoices', 'cancelled_by_employee_id') IS NULL
     ALTER TABLE invoices ADD cancelled_by_employee_id INT NULL FOREIGN KEY REFERENCES employees(employee_id);
 IF COL_LENGTH('invoices', 'cancellation_reason') IS NULL ALTER TABLE invoices ADD cancellation_reason NVARCHAR(255) NULL;
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = 'CK_invoices_status')
     ALTER TABLE invoices ADD CONSTRAINT CK_invoices_status CHECK (status IN ('paid', 'cancelled'));
 GO
