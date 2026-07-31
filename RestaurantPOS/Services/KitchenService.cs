@@ -73,5 +73,15 @@ namespace RestaurantPOS.Services
             }
             return success;
         }
+
+        public List<string> GetMissingIngredients(int orderItemId)
+        {
+            return _orderItemRepository.GetMissingIngredientsForOrderItem(orderItemId);
+        }
+
+        public bool CancelOrderItem(int orderItemId, string reason)
+        {
+            return _orderItemRepository.CancelOrderItem(orderItemId, reason, AuthService.Instance.CurrentUser?.EmployeeId);
+        }
     }
 }

@@ -22,6 +22,15 @@ namespace RestaurantPOS.Tests
         public bool Delete(int id) => true;
         public List<KitchenOrderItemDto> GetActiveKitchenItems() => new List<KitchenOrderItemDto>();
         public List<KitchenOrderItemDto> GetServedKitchenItemsToday() => new List<KitchenOrderItemDto>();
+        public List<string> GetMissingIngredientsForOrderItem(int orderItemId) => new List<string>();
+        public bool CancelOrderItem(int orderItemId, string reason, int? employeeId)
+        {
+            if (Item != null)
+            {
+                Item.Status = "cancelled";
+            }
+            return true;
+        }
     }
 
     public class FakeKitchenIngredientService : IIngredientService

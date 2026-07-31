@@ -53,6 +53,7 @@ namespace RestaurantPOS.ViewModels.Kitchen
         public ICommand StartCookingCommand { get; }
         public ICommand MarkReadyCommand { get; }
         public ICommand MarkServedCommand { get; }
+        public ICommand CancelCommand { get; }
         public ICommand RefreshCommand { get; }
 
         public KitchenViewModel()
@@ -67,6 +68,7 @@ namespace RestaurantPOS.ViewModels.Kitchen
             StartCookingCommand = new RelayCommand<KitchenOrderItemDto>(ExecuteStartCooking);
             MarkReadyCommand = new RelayCommand<KitchenOrderItemDto>(ExecuteMarkReady);
             MarkServedCommand = new RelayCommand<KitchenOrderItemDto>(ExecuteMarkServed);
+            CancelCommand = new RelayCommand<KitchenOrderItemDto>(ExecuteCancel);
             RefreshCommand = new RelayCommand(LoadData);
 
             // Cấu hình Polling tự động mỗi 5 giây
@@ -113,32 +115,68 @@ namespace RestaurantPOS.ViewModels.Kitchen
 
         private void ExecuteStartCooking(KitchenOrderItemDto item)
         {
-            if (item != null)
+            if (item == null) return;
+            if (_kitchenService.UpdateOrderItemStatus(item.OrderItemId, "cooking"))
             {
-                if (_kitchenService.UpdateOrderItemStatus(item.OrderItemId, "cooking"))
-                {
-                    LoadData();
-                }
+                LoadData();
             }
         }
 
         private void ExecuteMarkReady(KitchenOrderItemDto item)
         {
-            if (item != null)
+            if (item == null) return;
+            if (_kitchenService.UpdateOrderItemStatus(item.OrderItemId, "ready"))
             {
-                if (_kitchenService.UpdateOrderItemStatus(item.OrderItemId, "ready"))
+                LoadData();
+            }
+            else
+            {
+                var missingList = _kitchenService.GetMissingIngredients(item.OrderItemId);
+                string detailMessage = missingList.Any()
+                    ? string.Join("\n• ", missingList)
+                    : "Không xác định được nguyên liệu thiếu.";
+
+                var choice = System.Windows.MessageBox.Show(
+                    $"Không thể hoàn thành món '{item.DishName}' vì thiếu nguyên liệu tồn kho:\n\n• {detailMessage}\n\nBạn có muốn HỦY MÓN này (báo hết hàng cho Nhân viên Phục vụ) không?",
+                    "Cảnh Báo Hết Nguyên Liệu Kho",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+
+                if (choice == System.Windows.MessageBoxResult.Yes)
                 {
-                    LoadData();
+                    if (_kitchenService.CancelOrderItem(item.OrderItemId, "Báo hết nguyên liệu kho"))
+                    {
+                        System.Windows.MessageBox.Show($"Đã hủy món '{item.DishName}' và cập nhật cho nhân viên phục vụ!", "Thông báo", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                        LoadData();
+                    }
                 }
             }
         }
 
         private void ExecuteMarkServed(KitchenOrderItemDto item)
         {
-            if (item != null)
+            if (item == null) return;
+            if (_kitchenService.UpdateOrderItemStatus(item.OrderItemId, "served"))
             {
-                if (_kitchenService.UpdateOrderItemStatus(item.OrderItemId, "served"))
+                LoadData();
+            }
+        }
+
+        private void ExecuteCancel(KitchenOrderItemDto item)
+        {
+            if (item == null) return;
+
+            var choice = System.Windows.MessageBox.Show(
+                $"Bạn có chắc chắn muốn HỦY món '{item.DishName}' (Bàn: {item.TableName}) không?",
+                "Xác nhận hủy món",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (choice == System.Windows.MessageBoxResult.Yes)
+            {
+                if (_kitchenService.CancelOrderItem(item.OrderItemId, "Bếp chủ động báo hết / hủy món"))
                 {
+                    System.Windows.MessageBox.Show($"Đã hủy món '{item.DishName}' thành công!", "Thông báo", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                     LoadData();
                 }
             }
