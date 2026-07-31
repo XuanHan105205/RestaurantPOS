@@ -41,8 +41,21 @@ namespace RestaurantPOS.Repositories
                         var ingredient = context.Ingredients.Find(entity.IngredientId);
                         if (ingredient != null)
                         {
+                            decimal before = ingredient.StockQuantity;
                             ingredient.StockQuantity += entity.Quantity;
                             context.Ingredients.Update(ingredient);
+                            context.StockMovements.Add(new StockMovement
+                            {
+                                IngredientId = ingredient.IngredientId,
+                                MovementType = "receipt",
+                                Quantity = entity.Quantity,
+                                QuantityBefore = before,
+                                QuantityAfter = ingredient.StockQuantity,
+                                ReferenceId = entity.ReceiptId,
+                                EmployeeId = entity.ReceivedByEmployeeId,
+                                Reason = entity.Supplier,
+                                CreatedAt = DateTime.Now
+                            });
                             context.SaveChanges();
                         }
                         else

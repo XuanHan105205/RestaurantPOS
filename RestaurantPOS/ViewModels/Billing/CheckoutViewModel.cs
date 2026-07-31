@@ -516,6 +516,8 @@ namespace RestaurantPOS.ViewModels.Billing
             // Create Invoice
             var invoice = new Invoice
             {
+                InvoiceNumber = $"HD{DateTime.Now:yyyyMMddHHmmss}{Guid.NewGuid().ToString("N")[..4].ToUpperInvariant()}",
+                Status = "paid",
                 SessionId = ActiveSession.SessionId,
                 Subtotal = Subtotal,
                 Discount = DiscountAmount,

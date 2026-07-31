@@ -39,6 +39,9 @@
         <DataTemplate DataType="{x:Type vm:CustomerManagementViewModel}">
             <coreView:CustomerManagementView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ExtendedManagementViewModel}">
+            <coreView:ExtendedManagementView />
+        </DataTemplate>
         
         <!-- Style thiết kế chung cho các nút bấm Menu bên Sidebar -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
@@ -116,6 +119,11 @@
                         Style="{StaticResource SidebarButtonStyle}"
                         Command="{Binding NavigateCustomerCommand}"
                         Visibility="{Binding IsCustomerVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <Button Content="⚙ Quản lý mở rộng"
+                        Style="{StaticResource SidebarButtonStyle}"
+                        Command="{Binding NavigateExtendedCommand}"
+                        Visibility="{Binding IsExtendedVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </StackPanel>
 
             <!-- 3. Nút Đăng xuất ở cuối Sidebar -->

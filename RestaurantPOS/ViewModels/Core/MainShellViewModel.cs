@@ -36,6 +36,8 @@ namespace RestaurantPOS.ViewModels.Core
                 () => Navigation.CurrentViewModel = new BillingViewModel());
             NavigateCustomerCommand = new RelayCommand(
                 () => Navigation.CurrentViewModel = CreateCustomerViewModel());
+            NavigateExtendedCommand = new RelayCommand(
+                () => Navigation.CurrentViewModel = new ExtendedManagementViewModel());
             LogoutCommand = new RelayCommand(ExecuteLogout);
 
             SetDefaultView();
@@ -56,12 +58,14 @@ namespace RestaurantPOS.ViewModels.Core
         public bool IsBillingVisible =>
             CurrentEmployeeRole == "MANAGER" || CurrentEmployeeRole == "CASHIER";
         public bool IsCustomerVisible => CurrentEmployeeRole == "MANAGER";
+        public bool IsExtendedVisible => CurrentEmployeeRole is "MANAGER" or "WAITER" or "INVENTORY" or "CASHIER";
 
         public ICommand NavigateWaiterCommand { get; }
         public ICommand NavigateKitchenCommand { get; }
         public ICommand NavigateInventoryCommand { get; }
         public ICommand NavigateBillingCommand { get; }
         public ICommand NavigateCustomerCommand { get; }
+        public ICommand NavigateExtendedCommand { get; }
         public ICommand LogoutCommand { get; }
 
         private CustomerManagementViewModel CreateCustomerViewModel()
