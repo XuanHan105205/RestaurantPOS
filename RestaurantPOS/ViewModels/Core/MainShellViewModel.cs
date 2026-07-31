@@ -26,16 +26,11 @@ namespace RestaurantPOS.ViewModels.Core
             _dialogService = dialogService;
             _inventoryFactory = inventoryFactory;
 
-            NavigateWaiterCommand = new RelayCommand(
-                () => Navigation.CurrentViewModel = new TableViewModel());
-            NavigateKitchenCommand = new RelayCommand(
-                () => Navigation.CurrentViewModel = new KitchenViewModel());
-            NavigateInventoryCommand = new RelayCommand(
-                () => Navigation.CurrentViewModel = _inventoryFactory.Create());
-            NavigateBillingCommand = new RelayCommand(
-                () => Navigation.CurrentViewModel = new BillingViewModel());
-            NavigateCustomerCommand = new RelayCommand(
-                () => Navigation.CurrentViewModel = CreateCustomerViewModel());
+            NavigateWaiterCommand = new RelayCommand(NavigateToWaiter);
+            NavigateKitchenCommand = new RelayCommand(NavigateToKitchen);
+            NavigateInventoryCommand = new RelayCommand(NavigateToInventory);
+            NavigateBillingCommand = new RelayCommand(NavigateToBilling);
+            NavigateCustomerCommand = new RelayCommand(NavigateToCustomer);
             NavigateExtendedCommand = new RelayCommand(
                 () => Navigation.CurrentViewModel = new ExtendedManagementViewModel());
             LogoutCommand = new RelayCommand(ExecuteLogout);
@@ -73,6 +68,31 @@ namespace RestaurantPOS.ViewModels.Core
             return new CustomerManagementViewModel(
                 new CustomerService(),
                 _dialogService);
+        }
+
+        private void NavigateToWaiter()
+        {
+            Navigation.CurrentViewModel = new TableViewModel();
+        }
+
+        private void NavigateToKitchen()
+        {
+            Navigation.CurrentViewModel = new KitchenViewModel();
+        }
+
+        private void NavigateToInventory()
+        {
+            Navigation.CurrentViewModel = _inventoryFactory.Create();
+        }
+
+        private void NavigateToBilling()
+        {
+            Navigation.CurrentViewModel = new BillingViewModel();
+        }
+
+        private void NavigateToCustomer()
+        {
+            Navigation.CurrentViewModel = CreateCustomerViewModel();
         }
 
         private void SetDefaultView()
