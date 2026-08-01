@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using System.Globalization;
 using RestaurantPOS.Models;
 using RestaurantPOS.MVVM;
 using RestaurantPOS.Services;
@@ -27,6 +26,8 @@ namespace RestaurantPOS.ViewModels.Core
         public ObservableCollection<AuditLog> AuditLogs { get; } = new();
         public string[] Roles { get; } = { "manager", "waiter", "kitchen", "cashier" };
         public string[] DishStatuses { get; } = { "active", "discontinued" };
+        public string[] ReservationHours { get; } = Enumerable.Range(0, 24).Select(value => value.ToString("00")).ToArray();
+        public string[] ReservationMinutes { get; } = Enumerable.Range(0, 60).Select(value => value.ToString("00")).ToArray();
 
         private Employee? _selectedEmployee;
         public Employee? SelectedEmployee { get => _selectedEmployee; set { if (SetProperty(ref _selectedEmployee, value)) NewPassword = ""; } }
@@ -34,8 +35,23 @@ namespace RestaurantPOS.ViewModels.Core
         private Category? _selectedCategory; public Category? SelectedCategory { get => _selectedCategory; set => SetProperty(ref _selectedCategory, value); }
         private Dish? _selectedDish; public Dish? SelectedDish { get => _selectedDish; set => SetProperty(ref _selectedDish, value); }
         private RestaurantTable? _selectedTable; public RestaurantTable? SelectedTable { get => _selectedTable; set => SetProperty(ref _selectedTable, value); }
-        private Reservation? _selectedReservation; public Reservation? SelectedReservation { get => _selectedReservation; set { if (SetProperty(ref _selectedReservation, value) && value != null) ReservationTimeText = value.ReservationTime.ToString("dd/MM/yyyy HH:mm"); } }
-        private string _reservationTimeText = ""; public string ReservationTimeText { get => _reservationTimeText; set => SetProperty(ref _reservationTimeText, value); }
+        private Reservation? _selectedReservation;
+        public Reservation? SelectedReservation
+        {
+            get => _selectedReservation;
+            set
+            {
+                if (SetProperty(ref _selectedReservation, value) && value != null)
+                {
+                    ReservationDate = value.ReservationTime.Date;
+                    ReservationHour = value.ReservationTime.ToString("HH");
+                    ReservationMinute = value.ReservationTime.ToString("mm");
+                }
+            }
+        }
+        private DateTime? _reservationDate; public DateTime? ReservationDate { get => _reservationDate; set => SetProperty(ref _reservationDate, value); }
+        private string _reservationHour = "00"; public string ReservationHour { get => _reservationHour; set => SetProperty(ref _reservationHour, value); }
+        private string _reservationMinute = "00"; public string ReservationMinute { get => _reservationMinute; set => SetProperty(ref _reservationMinute, value); }
         private string _quickCustomerName = ""; public string QuickCustomerName { get => _quickCustomerName; set => SetProperty(ref _quickCustomerName, value); }
         private string _quickCustomerPhone = ""; public string QuickCustomerPhone { get => _quickCustomerPhone; set => SetProperty(ref _quickCustomerPhone, value); }
         private Ingredient? _selectedIngredient; public Ingredient? SelectedIngredient { get => _selectedIngredient; set => SetProperty(ref _selectedIngredient, value); }
@@ -92,9 +108,11 @@ namespace RestaurantPOS.ViewModels.Core
         private void SaveReservation()
         {
             if (SelectedReservation == null) { StatusMessage = "Chọn hoặc tạo đặt bàn."; return; }
-            if (!DateTime.TryParseExact(ReservationTimeText, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var time))
-            { StatusMessage = "Thời gian phải theo dạng dd/MM/yyyy HH:mm."; return; }
-            SelectedReservation.ReservationTime = time;
+            if (!ReservationDate.HasValue ||
+                !int.TryParse(ReservationHour, out int hour) ||
+                !int.TryParse(ReservationMinute, out int minute))
+            { StatusMessage = "Vui lòng chọn đầy đủ ngày, giờ và phút."; return; }
+            SelectedReservation.ReservationTime = ReservationDate.Value.Date.AddHours(hour).AddMinutes(minute);
             Run(() => _service.SaveReservation(SelectedReservation));
         }
         private void CreateQuickCustomer()
