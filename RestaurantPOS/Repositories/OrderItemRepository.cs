@@ -187,8 +187,60 @@ namespace RestaurantPOS.Repositories
                     QuantityAfter = ingredient.StockQuantity, ReferenceId = item.OrderItemId,
                     EmployeeId = employeeId, Reason = $"Hoàn thành món #{item.OrderItemId}", CreatedAt = DateTime.Now });
             }
-            item.Status = "ready"; item.StatusUpdatedAt = DateTime.Now;
-            context.SaveChanges(); transaction.Commit(); return true;
+            item.Status = "ready";
+            item.StatusUpdatedAt = DateTime.Now;
+            context.SaveChanges();
+            transaction.Commit();
+            return true;
+        }
+
+        public List<string> GetMissingIngredientsForOrderItem(int orderItemId)
+        {
+            var missing = new List<string>();
+            using var context = new RestaurantPOSDbContext();
+            var item = context.OrderItems.Find(orderItemId);
+            if (item == null) return missing;
+
+            var recipes = context.Recipes.Where(r => r.DishId == item.DishId).ToList();
+            foreach (var recipe in recipes)
+            {
+                var ingredient = context.Ingredients.Find(recipe.IngredientId);
+                decimal required = recipe.QuantityPerServing * item.Quantity;
+                if (ingredient == null)
+                {
+                    missing.Add($"Nguyên liệu ID #{recipe.IngredientId} (Không tìm thấy)");
+                }
+                else if (ingredient.StockQuantity < required)
+                {
+                    missing.Add($"{ingredient.IngredientName} (Tồn kho: {ingredient.StockQuantity:0.##} {ingredient.Unit}, cần: {required:0.##} {ingredient.Unit})");
+                }
+            }
+            return missing;
+        }
+
+        public bool CancelOrderItem(int orderItemId, string reason, int? employeeId)
+        {
+            using var context = new RestaurantPOSDbContext();
+            var item = context.OrderItems.Find(orderItemId);
+            if (item == null || item.Status == "served" || item.Status == "cancelled") return false;
+
+            item.Status = "cancelled";
+            item.StatusUpdatedAt = DateTime.Now;
+            item.Note = string.IsNullOrEmpty(item.Note)
+                ? $"[HỦY BẾP]: {reason}"
+                : $"{item.Note} | [HỦY BẾP]: {reason}";
+
+            context.AuditLogs.Add(new AuditLog
+            {
+                EmployeeId = employeeId,
+                Action = "CANCEL_ORDER_ITEM",
+                EntityType = "order_items",
+                EntityId = item.OrderItemId,
+                Description = $"Bếp hủy món #{item.OrderItemId} ({item.DishId}). Lý do: {reason}",
+                CreatedAt = DateTime.Now
+            });
+
+            return context.SaveChanges() > 0;
         }
     }
 }

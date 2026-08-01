@@ -32,5 +32,7 @@ namespace RestaurantPOS.Repositories
     {
         List<KitchenOrderItemDto> GetActiveKitchenItems();
         List<KitchenOrderItemDto> GetServedKitchenItemsToday();
+        List<string> GetMissingIngredientsForOrderItem(int orderItemId);
+        bool CancelOrderItem(int orderItemId, string reason, int? employeeId);
     }
 }

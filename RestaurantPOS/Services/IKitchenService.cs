@@ -8,5 +8,7 @@ namespace RestaurantPOS.Services
         List<KitchenOrderItemDto> GetActiveKitchenItems();
         List<KitchenOrderItemDto> GetServedKitchenItemsToday();
         bool UpdateOrderItemStatus(int orderItemId, string newStatus);
+        List<string> GetMissingIngredients(int orderItemId);
+        bool CancelOrderItem(int orderItemId, string reason);
     }
 }
